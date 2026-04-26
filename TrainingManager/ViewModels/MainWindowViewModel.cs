@@ -1,7 +1,10 @@
-﻿namespace TrainingManager.ViewModels
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace TrainingManager.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting { get; } = "Welcome to Avalonia!";
+        [ObservableProperty]
+        public ViewModelBase currentPage;
     }
 }
