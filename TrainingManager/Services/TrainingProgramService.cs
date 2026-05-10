@@ -23,7 +23,9 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.TrainingPrograms
-                .Include(p => p.ProgramDays).ThenInclude(d => d.DayExercises).ThenInclude(de => de.Exercises)
+                .Include(p => p.ProgramDays)
+                .ThenInclude(d => d.DayExercises)
+                .ThenInclude(de => de.Exercises)
                 .OrderBy(p => p.Name).ToListAsync();
         }
 
@@ -31,7 +33,9 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.TrainingPrograms
-                .Include(p => p.ProgramDays).ThenInclude(d => d.DayExercises).ThenInclude(de => de.Exercises)
+                .Include(p => p.ProgramDays)
+                .ThenInclude(d => d.DayExercises)
+                .ThenInclude(de => de.Exercises)
                 .FirstOrDefaultAsync(p => p.Id == programId);
         }
 
@@ -77,7 +81,9 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             var program = await context.TrainingPrograms
-                .Include(p => p.ProgramDays).ThenInclude(d => d.DayExercises).ThenInclude(de => de.Exercises)
+                .Include(p => p.ProgramDays)
+                .ThenInclude(d => d.DayExercises)
+                .ThenInclude(de => de.Exercises)
                 .FirstOrDefaultAsync(p => p.Id == updatedProgram.Id);
 
             program.Name = updatedProgram.Name;
