@@ -10,9 +10,9 @@ namespace TrainingManager.Models
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public int Order_index { get; set; }
-        public DateTime Created_at { get; set; }
-        public DateTime Updated_at { get; set; }
+        public int OrderIndex { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public TrainingProgram TrainingProgram { get; set; }
         public ICollection<DayExercises> DayExercises { get; set; }
         public ICollection<WorkoutSession> WorkoutSession { get; set; }

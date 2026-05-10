@@ -11,8 +11,8 @@ namespace TrainingManager.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int Days { get; set; }
-        public DateTime Created_at { get; set; }
-        public DateTime Updated_at { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public ICollection<Day> ProgramDays { get; set; }
     }
 }
