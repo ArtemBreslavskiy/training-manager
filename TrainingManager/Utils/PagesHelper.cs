@@ -1,35 +1,36 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TrainingManager.ViewModels;
 
 namespace TrainingManager.Utils
 {
     internal class PagesHelper
     {
-        private readonly MainWindowViewModel _mainWindowViewModel;
-        private readonly IServiceProvider _serviceProvider;
+        private MainWindowViewModel _mainWindowViewModel;
 
-        public PagesHelper(MainWindowViewModel mainWindowViewModel, IServiceProvider serviceProvider)
+        public PagesHelper()
         {
-            _mainWindowViewModel = mainWindowViewModel;
-            _serviceProvider = serviceProvider;
+            _mainWindowViewModel = new MainWindowViewModel();
         }
 
         public void GoWelcomePage()
         {
-            _mainWindowViewModel.CurrentPage = _serviceProvider.GetRequiredService<WelcomePageViewModel>();
+            _mainWindowViewModel.CurrentPage = new WelcomePageViewModel();
         }
 
         public void GoTrainingProgramPage(int programId)
         {
-            var viewModel = _serviceProvider.GetRequiredService<TrainingProgramPageViewModel>();
+            TrainingProgramPageViewModel viewModel = new();
             viewModel.SelectedProgramId = programId;
             _mainWindowViewModel.CurrentPage = viewModel;
         }
 
         public void GoChartsPage(int exerciseId)
         {
-            var viewModel = _serviceProvider.GetRequiredService<ChartsPageViewModel>();
+            ChartsPageViewModel viewModel = new();
             viewModel.SelectedExerciseId = exerciseId;
             _mainWindowViewModel.CurrentPage = viewModel;
         }

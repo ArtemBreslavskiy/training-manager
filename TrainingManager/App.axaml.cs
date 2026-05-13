@@ -4,7 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Microsoft.Extensions.DependencyInjection;
 using TrainingManager.ViewModels;
 using TrainingManager.Views;
 
@@ -24,14 +23,9 @@ namespace TrainingManager
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
-
-                var serviceProvider = DependencyInjection.ConfigureServices();
-                var mainWindowViewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
-                mainWindowViewModel.CurrentPage = serviceProvider.GetRequiredService<WelcomePageViewModel>();
-
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = mainWindowViewModel,
+                    DataContext = new MainWindowViewModel(),
                 };
             }
 

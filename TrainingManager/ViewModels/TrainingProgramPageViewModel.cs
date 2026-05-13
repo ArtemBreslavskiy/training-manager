@@ -12,21 +12,13 @@ namespace TrainingManager.ViewModels
 {
     public partial class TrainingProgramPageViewModel : ViewModelBase
     {
-        private readonly TrainingProgramService _trainingProgramService;
-        private readonly ExerciseService _exersiceService;
-        private readonly WorkoutService _workoutService;
-
-        public TrainingProgramPageViewModel(
-            TrainingProgramService trainingProgramService,
-            ExerciseService exersiceService,
-            WorkoutService workoutService)
-        {
-            _trainingProgramService = trainingProgramService;
-            _exersiceService = exersiceService;
-            _workoutService = workoutService;
-        }
-
+        private readonly TrainingProgramService _trainingProgramService = new();
+        private readonly ExerciseService _exersiceService = new();
+        private readonly WorkoutService _workoutService = new();
         public ObservableCollection<Day> days = new();
+
+        [ObservableProperty]
+        private int daysCount;
 
         [ObservableProperty]
         private int daysCount;
