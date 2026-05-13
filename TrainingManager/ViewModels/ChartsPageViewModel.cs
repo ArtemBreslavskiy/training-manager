@@ -8,5 +8,6 @@ namespace TrainingManager.ViewModels
 {
     public partial class ChartsPageViewModel : ViewModelBase
     {
+        public int SelectedExerciseId { get; set; }
     }
 }
