@@ -14,6 +14,8 @@ namespace TrainingManager.Models
         public double? Weight { get; set; }
         public bool IsComplited { get; set; }
         public DayExercises DayExercises { get; set; }
+        public int DayExercisesId { get; set; }
         public WorkoutSession WorkoutSession { get; set; }
+        public int WorkoutSessionId { get; set; }
     }
 }
