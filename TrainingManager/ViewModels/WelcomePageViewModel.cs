@@ -1,14 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using TrainingManager.Data;
 using TrainingManager.Models;
 using TrainingManager.Services;
 using TrainingManager.Utils;
@@ -17,8 +12,16 @@ namespace TrainingManager.ViewModels
 {
     public partial class WelcomePageViewModel : ViewModelBase
     {
-        private readonly TrainingProgramService _trainingProgramService = new(new IDbContextFactory<TrainingContext>());
-        private readonly PagesHelper _pagesHelper = new();
+        private readonly TrainingProgramService _trainingProgramService;
+        private readonly PagesHelper _pagesHelper;
+
+        public WelcomePageViewModel(
+            TrainingProgramService trainingProgramService,
+            PagesHelper pagesHelper)
+        {
+            _trainingProgramService = trainingProgramService;
+            _pagesHelper = pagesHelper;
+        }
         private List<TrainingProgram> _allPrograms = new();
         public ObservableCollection<TrainingProgram> Programs { get; set; } = new(); 
 
