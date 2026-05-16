@@ -4,12 +4,12 @@ using TrainingManager.ViewModels;
 
 namespace TrainingManager.Utils
 {
-    internal class PagesHelper
+    public class PagesUtils
     {
         private readonly MainWindowViewModel _mainWindowViewModel;
         private readonly IServiceProvider _serviceProvider;
 
-        public PagesHelper(MainWindowViewModel mainWindowViewModel, IServiceProvider serviceProvider)
+        public PagesUtils(MainWindowViewModel mainWindowViewModel, IServiceProvider serviceProvider)
         {
             _mainWindowViewModel = mainWindowViewModel;
             _serviceProvider = serviceProvider;

@@ -22,7 +22,7 @@ internal static class DependencyInjection
         services.AddSingleton<TrainingProgramService>();
         services.AddSingleton<ExerciseService>();
         services.AddSingleton<WorkoutService>();
-        services.AddSingleton<PagesHelper>();
+        services.AddSingleton<PagesUtils>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<WelcomePageViewModel>();
         services.AddTransient<TrainingProgramPageViewModel>();

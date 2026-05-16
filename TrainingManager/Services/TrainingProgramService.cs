@@ -10,7 +10,7 @@ using TrainingManager.Models;
 
 namespace TrainingManager.Services
 {
-    internal class TrainingProgramService
+    public class TrainingProgramService
     {
         private readonly IDbContextFactory<TrainingContext> _factory;
 
