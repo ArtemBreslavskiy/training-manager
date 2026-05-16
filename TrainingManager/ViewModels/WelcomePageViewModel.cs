@@ -13,11 +13,11 @@ namespace TrainingManager.ViewModels
     public partial class WelcomePageViewModel : ViewModelBase
     {
         private readonly TrainingProgramService _trainingProgramService;
-        private readonly PagesHelper _pagesHelper;
+        private readonly PagesUtils _pagesHelper;
 
         public WelcomePageViewModel(
             TrainingProgramService trainingProgramService,
-            PagesHelper pagesHelper)
+            PagesUtils pagesHelper)
         {
             _trainingProgramService = trainingProgramService;
             _pagesHelper = pagesHelper;
