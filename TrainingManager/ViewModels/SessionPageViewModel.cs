@@ -23,10 +23,5 @@ namespace TrainingManager.ViewModels
             _exersiceService = exersiceService;
             _workoutService = workoutService;
         }
-
-        [ObservableProperty]
-        private int DayId;
-
-
     }
 }

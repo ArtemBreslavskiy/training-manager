@@ -45,7 +45,7 @@ namespace TrainingManager.Services
             var program = new TrainingProgram
             {
                 Name = name,
-                Days = daysCount,
+                DaysCount = daysCount,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
             };
@@ -90,9 +90,9 @@ namespace TrainingManager.Services
             program.UpdatedAt = DateTime.UtcNow;
 
             var currentDays = program.ProgramDays.OrderBy(d => d.OrderIndex).ToList();
-            if (currentDays.Count < updatedProgram.Days)
+            if (currentDays.Count < updatedProgram.DaysCount)
             {
-                for (int i = currentDays.Count; i < updatedProgram.Days; i++)
+                for (int i = currentDays.Count; i < updatedProgram.DaysCount; i++)
                 {
                     program.ProgramDays.Add(new Day
                     {
@@ -103,9 +103,9 @@ namespace TrainingManager.Services
                     });
                 }
             }
-            else if (currentDays.Count > updatedProgram.Days)
+            else if (currentDays.Count > updatedProgram.DaysCount)
             {
-                var daysToRemove = currentDays.OrderByDescending(d => d.OrderIndex).Take(currentDays.Count - updatedProgram.Days);
+                var daysToRemove = currentDays.OrderByDescending(d => d.OrderIndex).Take(currentDays.Count - updatedProgram.DaysCount);
                 foreach (var day in daysToRemove)
                     context.Days.Remove(day);
             }

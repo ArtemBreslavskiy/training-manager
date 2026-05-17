@@ -56,7 +56,7 @@ namespace TrainingManager.Services
             if (exercise == null)
                 return;
 
-            bool isUsed = await context.DayExercises.AnyAsync(de => de.ExercisesId == exerciseId);
+            bool isUsed = await context.DayExercises.AnyAsync(de => de.ExerciseId == exerciseId);
             if (isUsed)
                 throw new InvalidOperationException("You cannot delete an exercise that is used in training programs.");
 
@@ -64,7 +64,7 @@ namespace TrainingManager.Services
             await context.SaveChangesAsync();
         }
 
-        public async Task<DayExercises> AddExerciseToDayAsync(
+        public async Task<DayExercise> AddExerciseToDayAsync(
             int dayId,
             int exerciseId,
             int orderInDay,
@@ -82,13 +82,13 @@ namespace TrainingManager.Services
             if (exercise == null)
                 throw new ArgumentException($"Exercise with Id={exerciseId} not found", nameof(exerciseId));
 
-            var dayExercise = new DayExercises
+            var dayExercise = new DayExercise
             {
                 DayId = dayId,
-                ExercisesId = exerciseId,
+                ExerciseId = exerciseId,
                 OrderInDay = orderInDay,
-                PlainedSets = plannedSets,
-                PlainedReps = plannedReps,
+                PlainedSetsCount = plannedSets,
+                PlainedRepsCount = plannedReps,
                 PlainedWeight = plannedWeight
             };
 
@@ -111,7 +111,7 @@ namespace TrainingManager.Services
             }
         }
 
-        public async Task<List<DayExercises>> GetExercisesForDayAsync(int dayId)
+        public async Task<List<DayExercise>> GetExercisesForDayAsync(int dayId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.DayExercises
@@ -133,8 +133,8 @@ namespace TrainingManager.Services
             if (dayExercise == null)
                 throw new ArgumentException($"The DayExercises entry with Id={dayExerciseId} was not found");
 
-            dayExercise.PlainedSets = plannedSets;
-            dayExercise.PlainedReps = plannedReps;
+            dayExercise.PlainedSetsCount = plannedSets;
+            dayExercise.PlainedRepsCount = plannedReps;
             dayExercise.PlainedWeight = plannedWeight;
 
             await context.SaveChangesAsync();

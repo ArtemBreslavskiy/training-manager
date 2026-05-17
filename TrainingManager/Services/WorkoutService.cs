@@ -68,7 +68,7 @@ namespace TrainingManager.Services
             var set = new WorkoutSet()
             {
                 OrderInExercises = order,
-                Reps = reps,
+                RepsCount = reps,
                 Weight = weight,
                 IsComplited = isCompleted,
                 DayExercisesId = dayExerciseId,
@@ -88,7 +88,7 @@ namespace TrainingManager.Services
             if (set == null)
                 throw new ArgumentException($"WorkoutSet with Id={setId} not found");
 
-            set.Reps = reps;
+            set.RepsCount = reps;
             set.Weight = weight;
             set.IsComplited = isCompleted;
             await context.SaveChangesAsync();
@@ -121,7 +121,7 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.WorkoutSet
-                .Where(ws => ws.DayExercises.ExercisesId == exerciseId)
+                .Where(ws => ws.DayExercises.ExerciseId == exerciseId)
                 .Include(ws => ws.WorkoutSession)
                 .Include(ws => ws.DayExercises)
                 .OrderBy(ws => ws.WorkoutSession.Date)

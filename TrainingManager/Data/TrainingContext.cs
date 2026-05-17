@@ -13,12 +13,12 @@ namespace TrainingManager.Data
         public DbSet<TrainingProgram> TrainingPrograms { get; set; }
         public DbSet<Day> Days { get; set; }
         public DbSet<Exercise> Exercise { get; set; }
-        public DbSet<DayExercises> DayExercises { get; set; }
+        public DbSet<DayExercise> DayExercises { get; set; }
         public DbSet<WorkoutSet> WorkoutSet { get; set; }
         public DbSet<WorkoutSession> WorkoutSession { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=training");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Username=postgres;Password=postgres;Database=training");
         }
     }
 }
