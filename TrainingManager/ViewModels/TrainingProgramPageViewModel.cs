@@ -9,6 +9,7 @@ using TrainingManager.Services;
 using TrainingManager.Models;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using TrainingManager.Utils;
 
 namespace TrainingManager.ViewModels
 {
@@ -17,6 +18,7 @@ namespace TrainingManager.ViewModels
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exersiceService;
         private readonly WorkoutService _workoutService;
+        private readonly PagesUtils _pagesHelper;
         private TrainingProgram _program;
 
         [ObservableProperty]
@@ -60,15 +62,6 @@ namespace TrainingManager.ViewModels
             _program = await _trainingProgramService.GetProgramByIdAsync(SelectedProgramId);
         }
 
-        [RelayCommand]
-        public async void UpdateTrainingProgramDaysCountAsync()
-        {
-            TrainingProgram newTrainingProgram = _program;
-            newTrainingProgram.DaysCount = InputDaysCount;
-
-            _program = await _trainingProgramService.UpdateProgramAsync(newTrainingProgram);
-        }
-
         private async Task<Exercise> FindOrCreateExercise(string name)
         {
             List<Exercise> allExercises = await _exersiceService.GetAllExercisesAsync();
@@ -103,6 +96,43 @@ namespace TrainingManager.ViewModels
         {
             int dayExerciseId = _program.ProgramDays.ElementAt(SelectedDayOrder).DayExercises.ElementAt(SelectedExerciseOrder).Id;
             await _exersiceService.RemoveExerciseFromDayAsync(dayExerciseId);
+        }
+
+        [RelayCommand]
+        public async void UpdateTrainingProgramDaysCountAsync()
+        {
+            TrainingProgram newTrainingProgram = _program;
+            newTrainingProgram.DaysCount = InputDaysCount;
+
+            _program = await _trainingProgramService.UpdateProgramAsync(newTrainingProgram);
+        }
+
+        [RelayCommand]
+        public async void UpdatePlannedParametersAsync()
+        {
+            int dayExerciseId = _program.ProgramDays.ElementAt(SelectedDayOrder).DayExercises.ElementAt(SelectedExerciseOrder).Id;
+            await _exersiceService.UpdatePlannedParametersAsync(
+                dayExerciseId,
+                InputPlannedSetsCount,
+                InputPlannedRepsCount,
+                InputPlannedWeigths
+            );
+        }
+
+        [RelayCommand]
+        public async void GoTodaySessionPage()
+        {
+            int dayId = _program.ProgramDays.ElementAt(SelectedDayOrder).Id;
+            WorkoutSession session = await _workoutService.GetOrCreateSessionAsync(dayId, DateTime.Today);
+
+            _pagesHelper.GoSessionPage(session.Id);
+        }
+
+        [RelayCommand]
+        public async void GoChartsPage()
+        {
+            int exerciseId = _program.ProgramDays.ElementAt(SelectedDayOrder).DayExercises.ElementAt(SelectedExerciseOrder).ExerciseId;
+            _pagesHelper.GoChartsPage(exerciseId);
         }
     }
 }

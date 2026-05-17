@@ -8,7 +8,7 @@ using TrainingManager.Services;
 
 namespace TrainingManager.ViewModels
 {
-    internal class SessionPageViewModel
+    public partial class SessionPageViewModel : ViewModelBase
     {
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exersiceService;
@@ -23,5 +23,8 @@ namespace TrainingManager.ViewModels
             _exersiceService = exersiceService;
             _workoutService = workoutService;
         }
+
+        [ObservableProperty]
+        private int selectedSessionId;
     }
 }

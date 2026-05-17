@@ -25,7 +25,7 @@ namespace TrainingManager.Models
         [Column("plainedSetsWeight")]
         public double? PlainedWeight { get; set; }
         public Day Day { get; set; }
-        public Exercise Exercises { get; set; }
-        public ICollection<WorkoutSet> WorkoutSet { get; set; }
+        public Exercise Exercise { get; set; }
+        public ICollection<WorkoutSet> WorkoutSets { get; set; }
     }
 }
