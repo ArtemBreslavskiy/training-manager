@@ -68,8 +68,8 @@ namespace TrainingManager.Services
             int dayId,
             int exerciseId,
             int orderInDay,
-            int? plannedSets = null,
-            int? plannedReps = null,
+            int? plannedSetsCount = null,
+            int? plannedRepsCount = null,
             double? plannedWeight = null
         )
         {
@@ -87,8 +87,8 @@ namespace TrainingManager.Services
                 DayId = dayId,
                 ExerciseId = exerciseId,
                 OrderInDay = orderInDay,
-                PlainedSetsCount = plannedSets,
-                PlainedRepsCount = plannedReps,
+                PlainedSetsCount = plannedSetsCount,
+                PlainedRepsCount = plannedRepsCount,
                 PlainedWeight = plannedWeight
             };
 
