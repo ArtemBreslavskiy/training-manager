@@ -25,7 +25,7 @@ namespace TrainingManager.Services
             return await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
                 .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercises)
+                .ThenInclude(de => de.Exercise)
                 .OrderBy(p => p.Name).ToListAsync();
         }
 
@@ -35,7 +35,7 @@ namespace TrainingManager.Services
             return await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
                 .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercises)
+                .ThenInclude(de => de.Exercise)
                 .FirstOrDefaultAsync(p => p.Id == programId);
         }
 
@@ -46,8 +46,9 @@ namespace TrainingManager.Services
             {
                 Name = name,
                 DaysCount = daysCount,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                ProgramDays = new List<Day>()
             };
 
             for (int i = 0; i < daysCount; i++)
@@ -56,8 +57,8 @@ namespace TrainingManager.Services
                 {
                     Name = $"Day {i + 1}",
                     OrderIndex = i + 1,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
                 });
             }
 
@@ -83,34 +84,37 @@ namespace TrainingManager.Services
             var program = await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
                 .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercises)
+                .ThenInclude(de => de.Exercise)
                 .FirstOrDefaultAsync(p => p.Id == updatedProgram.Id);
 
-            program.Name = updatedProgram.Name;
-            program.UpdatedAt = DateTime.UtcNow;
-
-            var currentDays = program.ProgramDays.OrderBy(d => d.OrderIndex).ToList();
-            if (currentDays.Count < updatedProgram.DaysCount)
+            if (program != null)
             {
-                for (int i = currentDays.Count; i < updatedProgram.DaysCount; i++)
+                program.Name = updatedProgram.Name;
+                program.UpdatedAt = DateTime.UtcNow;
+
+                var currentDays = program.ProgramDays.OrderBy(d => d.OrderIndex).ToList();
+                if (currentDays.Count < updatedProgram.DaysCount)
                 {
-                    program.ProgramDays.Add(new Day
+                    for (int i = currentDays.Count; i < updatedProgram.DaysCount; i++)
                     {
-                        Name = $"Day {i+1}",
-                        OrderIndex = i+1,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow,
-                    });
+                        program.ProgramDays.Add(new Day
+                        {
+                            Name = $"Day {i + 1}",
+                            OrderIndex = i + 1,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow,
+                        });
+                    }
                 }
-            }
-            else if (currentDays.Count > updatedProgram.DaysCount)
-            {
-                var daysToRemove = currentDays.OrderByDescending(d => d.OrderIndex).Take(currentDays.Count - updatedProgram.DaysCount);
-                foreach (var day in daysToRemove)
-                    context.Days.Remove(day);
-            }
+                else if (currentDays.Count > updatedProgram.DaysCount)
+                {
+                    var daysToRemove = currentDays.OrderByDescending(d => d.OrderIndex).Take(currentDays.Count - updatedProgram.DaysCount);
+                    foreach (var day in daysToRemove)
+                        context.Days.Remove(day);
+                }
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
             return program;
         }
     }

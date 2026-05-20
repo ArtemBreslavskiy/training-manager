@@ -111,7 +111,7 @@ namespace TrainingManager.Services
             return await context.WorkoutSet
                 .Where(s => s.WorkoutSessionId == sessionId)
                 .Include(s => s.DayExercises)
-                .ThenInclude(de => de.Exercises)
+                .ThenInclude(de => de.Exercise)
                 .OrderBy(s => s.DayExercises.OrderInDay)
                 .ThenBy(s => s.OrderInExercises)
                 .ToListAsync();
@@ -135,7 +135,7 @@ namespace TrainingManager.Services
             return await context.WorkoutSession
                 .Include(s => s.WorkoutSets)
                     .ThenInclude(ws => ws.DayExercises)
-                        .ThenInclude(de => de.Exercises)
+                        .ThenInclude(de => de.Exercise)
                 .FirstOrDefaultAsync(s => s.Id == sessionId);
         }
     }

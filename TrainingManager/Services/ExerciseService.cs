@@ -34,6 +34,13 @@ namespace TrainingManager.Services
                 .FirstOrDefaultAsync(e => e.Id == exerciseId);
         }
 
+        public async Task<Exercise?> GetExerciseByNameAsync(string name)
+        {
+            await using var ctx = await _factory.CreateDbContextAsync();
+            return await ctx.Exercise
+                .FirstOrDefaultAsync(e => e.Name == name);
+        }
+
         public async Task<Exercise> CreateExerciseAsync(string name)
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -96,7 +103,7 @@ namespace TrainingManager.Services
             await context.SaveChangesAsync();
 
             return await context.DayExercises
-                .Include(de => de.Exercises)
+                .Include(de => de.Exercise)
                 .FirstAsync(de => de.Id == dayExercise.Id);
         }
 
@@ -116,7 +123,7 @@ namespace TrainingManager.Services
             await using var context = await _factory.CreateDbContextAsync();
             return await context.DayExercises
                 .Where(de => de.DayId == dayId)
-                .Include(de => de.Exercises)
+                .Include(de => de.Exercise)
                 .OrderBy(de => de.OrderInDay)
                 .ToListAsync();
         }

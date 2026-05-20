@@ -18,7 +18,7 @@ namespace TrainingManager.Data
         public DbSet<WorkoutSession> WorkoutSession { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Username=postgres;Password=postgres;Database=training");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=training");
         }
     }
 }

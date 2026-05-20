@@ -1,10 +1,12 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+using TrainingManager.Models;
 using TrainingManager.Services;
+using TrainingManager.Utils;
 
 namespace TrainingManager.ViewModels
 {
@@ -13,6 +15,20 @@ namespace TrainingManager.ViewModels
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exersiceService;
         private readonly WorkoutService _workoutService;
+        private readonly PagesUtils _pagesHelper;
+        private TrainingProgram _program;
+
+        [ObservableProperty]
+        private int selectedSessionId;
+
+        [ObservableProperty]
+        private int selectedSetId;
+
+        [ObservableProperty]
+        private int inputRepsCount;
+
+        [ObservableProperty]
+        private double inputWeight;
 
         public SessionPageViewModel(
             TrainingProgramService trainingProgramService,
@@ -24,7 +40,10 @@ namespace TrainingManager.ViewModels
             _workoutService = workoutService;
         }
 
-        [ObservableProperty]
-        private int selectedSessionId;
+        private async Task LoadDataAsync()
+        {
+            WorkoutSession session  = await _workoutService.GetSessionByIdAsync(selectedSessionId);
+            int dayId = session.DayId;
+        }
     }
 }

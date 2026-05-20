@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TrainingManager.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Name="Root"
+             x:Class="TrainingManager.Views.WelcomePageView"
+             x:CompileBindings="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" HorizontalAlignment="Center">
+		<TextBox Grid.Row="0" Watermark="Search..." Width="500" Height="32" Text="{Binding SearchedName}" Margin="20 20 20 40"></TextBox>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
+			<ItemsControl ItemsSource="{Binding Programs}">
+
+                <ItemsControl.ItemContainerTheme>
+                    <ControlTheme TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="15"></Setter>
+                    </ControlTheme>
+                </ItemsControl.ItemContainerTheme>
+
+	            <ItemsControl.ItemsPanel>
+		            <ItemsPanelTemplate>
+			            <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+		            <DataTemplate>
+			            <Border Padding="10" Margin="5" BorderThickness="1" BorderBrush="Gray" CornerRadius="4" Width="250">
+							<Grid ColumnDefinitions="*,Auto,Auto">
+								<TextBlock Text="{Binding Name}"></TextBlock>
+
+                                <Button Grid.Column="1" Content="Go" 
+                                    Command="{Binding DataContext.GoSelectedTrainingProgramPageCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding Id}">
+                                </Button>
+
+                                <Button Grid.Column="2" Content="Delete" 
+                                    Command="{Binding DataContext.DeleteProgramCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding Id}">
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="20" Spacing="10">
+            <TextBox Watermark="Name" Width="160" Height="32" Text="{Binding InputName}"></TextBox>
+            <TextBox Watermark="Days" Width="70" Height="32" Text="{Binding InputDaysCount}"></TextBox>
+            <Button Content="Create" Width="70" Height="32" Background="#008000" Command="{Binding CreateProgramCommand}"></Button>
+        </StackPanel>
+    </Grid>
+
+</UserControl>

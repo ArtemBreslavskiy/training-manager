@@ -14,6 +14,12 @@ namespace TrainingManager.ViewModels
     {
         private readonly TrainingProgramService _trainingProgramService;
         private readonly PagesUtils _pagesHelper;
+        private List<TrainingProgram> _allPrograms = new();
+
+        public ObservableCollection<TrainingProgram> Programs { get; set; } = new();
+        [ObservableProperty] private string searchedName;
+        [ObservableProperty] private string inputName;
+        [ObservableProperty] private int? inputDaysCount;
 
         public WelcomePageViewModel(
             TrainingProgramService trainingProgramService,
@@ -21,38 +27,49 @@ namespace TrainingManager.ViewModels
         {
             _trainingProgramService = trainingProgramService;
             _pagesHelper = pagesHelper;
+
+            LoadDataAsync();
         }
-        private List<TrainingProgram> _allPrograms = new();
-        public ObservableCollection<TrainingProgram> Programs { get; set; } = new(); 
 
-        [ObservableProperty]
-        private string searchedName;
+        private async Task LoadDataAsync()
+        {
+            Programs.Clear();
+            _allPrograms.Clear();
 
-        [ObservableProperty]
-        private string inputName;
-
-        [ObservableProperty]
-        private int inputDaysCount;
-
-        [ObservableProperty]
-        private int selectedProgramId;
+            foreach (var program in await _trainingProgramService.GetAllProgramsAsync())
+            {
+                Programs.Add(program);
+                _allPrograms.Add(program);
+            }
+        }
 
         [RelayCommand]
         public async Task CreateProgram()
         {
-            await _trainingProgramService.CreateProgramAsync(InputName, InputDaysCount);
+            if (InputDaysCount != null && InputDaysCount.Value > 0)
+            {
+                var program = await _trainingProgramService.CreateProgramAsync(InputName, (int)InputDaysCount);
+                Programs.Add(program);
+                _allPrograms.Add(program);
+            }
         }
 
         [RelayCommand]
-        public async Task DeleteProgram()
+        public async Task DeleteProgram(int programId)
         {
-            await _trainingProgramService.DeleteProgramAsync(SelectedProgramId);
+            var programToRemove = Programs.FirstOrDefault(p => p.Id == programId);
+            if (programToRemove != null)
+            {
+                Programs.Remove(programToRemove);
+                _allPrograms.Remove(programToRemove);
+            }
+            await _trainingProgramService.DeleteProgramAsync(programId);
         }
 
         [RelayCommand]
-        public void GoSelectedTrainingProgramPage()
+        public void GoSelectedTrainingProgramPage(int programId)
         {
-            _pagesHelper.GoTrainingProgramPage(SelectedProgramId);
+            _pagesHelper.GoTrainingProgramPage(programId);
         }
 
         public void ApplyFilter()
@@ -69,6 +86,11 @@ namespace TrainingManager.ViewModels
             {
                 Programs.Add(program);
             }
+        }
+
+        partial void OnSearchedNameChanged(string value)
+        {
+            ApplyFilter();
         }
     }
 }
