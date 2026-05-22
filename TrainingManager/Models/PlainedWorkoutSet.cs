@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace TrainingManager.Models
 {
-    [Table("exercises")]
-    public class Exercise
+    [Table("plainedWorkoutSet")]
+    public class PlainedWorkoutSet
     {
         [Column("id")]
         public int Id { get; set; }
-        [Column("name")]
-        public string Name { get; set; }
-        [Column("notes")]
-        public string? Notes { get; set; }
+        [Column("plainedRepsCount")]
+        public int? PlainedRepsCount { get; set; }
+        [Column("plainedSetsWeight")]
+        public double? PlainedWeight { get; set; }
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; }
-        public ICollection<DayExercise> DayExercises { get; set; }
+        public DayExercise DayExercise { get; set; }
     }
 }

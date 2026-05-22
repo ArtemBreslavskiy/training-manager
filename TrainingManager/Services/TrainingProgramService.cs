@@ -24,8 +24,11 @@ namespace TrainingManager.Services
             await using var context = await _factory.CreateDbContextAsync();
             return await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
-                .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercise)
+                    .ThenInclude(d => d.DayExercises)
+                        .ThenInclude(de => de.Exercise)
+                .Include(p => p.ProgramDays)
+                    .ThenInclude(d => d.DayExercises)
+                        .ThenInclude(de => de.PlainedWorkoutSets)
                 .OrderBy(p => p.Name).ToListAsync();
         }
 
@@ -34,8 +37,11 @@ namespace TrainingManager.Services
             await using var context = await _factory.CreateDbContextAsync();
             return await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
-                .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercise)
+                    .ThenInclude(d => d.DayExercises)
+                        .ThenInclude(de => de.Exercise)
+                .Include(p => p.ProgramDays)
+                    .ThenInclude(d => d.DayExercises)
+                        .ThenInclude(de => de.PlainedWorkoutSets)
                 .FirstOrDefaultAsync(p => p.Id == programId);
         }
 
@@ -56,7 +62,7 @@ namespace TrainingManager.Services
                 program.ProgramDays.Add(new Day
                 {
                     Name = $"Day {i + 1}",
-                    OrderIndex = i + 1,
+                    OrderInProgram = i + 1,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                 });
@@ -92,7 +98,7 @@ namespace TrainingManager.Services
                 program.Name = updatedProgram.Name;
                 program.UpdatedAt = DateTime.UtcNow;
 
-                var currentDays = program.ProgramDays.OrderBy(d => d.OrderIndex).ToList();
+                var currentDays = program.ProgramDays.OrderBy(d => d.OrderInProgram).ToList();
                 if (currentDays.Count < updatedProgram.DaysCount)
                 {
                     for (int i = currentDays.Count; i < updatedProgram.DaysCount; i++)
@@ -100,7 +106,7 @@ namespace TrainingManager.Services
                         program.ProgramDays.Add(new Day
                         {
                             Name = $"Day {i + 1}",
-                            OrderIndex = i + 1,
+                            OrderInProgram = i + 1,
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow,
                         });
@@ -108,7 +114,7 @@ namespace TrainingManager.Services
                 }
                 else if (currentDays.Count > updatedProgram.DaysCount)
                 {
-                    var daysToRemove = currentDays.OrderByDescending(d => d.OrderIndex).Take(currentDays.Count - updatedProgram.DaysCount);
+                    var daysToRemove = currentDays.OrderByDescending(d => d.OrderInProgram).Take(currentDays.Count - updatedProgram.DaysCount);
                     foreach (var day in daysToRemove)
                         context.Days.Remove(day);
                 }

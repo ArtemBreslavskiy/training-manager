@@ -27,6 +27,8 @@ internal static class DependencyInjection
         services.AddTransient<WelcomePageViewModel>();
         services.AddTransient<TrainingProgramPageViewModel>();
         services.AddTransient<ChartsPageViewModel>();
+        services.AddTransient<PlainedWorkoutSetViewModel>();
+        services.AddTransient<DayExerciseViewModel>();
 
         return services.BuildServiceProvider();
     }

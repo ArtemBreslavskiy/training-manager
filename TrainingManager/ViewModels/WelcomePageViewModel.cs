@@ -16,7 +16,7 @@ namespace TrainingManager.ViewModels
         private readonly PagesUtils _pagesHelper;
         private List<TrainingProgram> _allPrograms = new();
 
-        public ObservableCollection<TrainingProgram> Programs { get; set; } = new();
+        [ObservableProperty] private ObservableCollection<TrainingProgram> programs = new();
         [ObservableProperty] private string searchedName;
         [ObservableProperty] private string inputName;
         [ObservableProperty] private int? inputDaysCount;

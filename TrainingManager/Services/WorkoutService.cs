@@ -19,10 +19,56 @@ namespace TrainingManager.Services
             _factory = factory;
         }
 
+        public async Task<PlainedWorkoutSet> AddPlainedWorkoutSetAsync(int dayExerciseId, int? plainedRepsCount = null, double? plainedWeight = null)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var dayExercise = await context.DayExercises
+                .Include(d => d.PlainedWorkoutSets)
+                .FirstAsync(d => d.Id == dayExerciseId);
+
+            if (dayExercise == null)
+                throw new ArgumentException($"DayExercises with Id={dayExerciseId} not found");
+
+            PlainedWorkoutSet plainedWorkoutSet = new()
+            {
+                PlainedRepsCount = plainedRepsCount,
+                PlainedWeight = plainedWeight,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+
+            dayExercise.PlainedWorkoutSets.Add(plainedWorkoutSet);
+            await context.SaveChangesAsync();
+
+            return await context.PlainedWorkoutSets
+                .Include(pws => pws.DayExercise)
+                    .ThenInclude(de => de.Exercise) 
+                .FirstAsync(pws => pws.Id == plainedWorkoutSet.Id);
+        }
+
+        public async Task<PlainedWorkoutSet> UpdatePlainedWorkoutSetAsync(int plainedWorkoutSetId, int? newPlainedRepsCount, double? newPlainedWeight)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var plainedWorkoutSet = await context.PlainedWorkoutSets.FindAsync(plainedWorkoutSetId);
+
+            if (plainedWorkoutSet == null)
+                throw new ArgumentException($"DayExercises with Id={plainedWorkoutSetId} not found");
+
+            plainedWorkoutSet.PlainedRepsCount = newPlainedRepsCount;
+            plainedWorkoutSet.PlainedWeight = newPlainedWeight;
+            plainedWorkoutSet.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+
+            return await context.PlainedWorkoutSets
+                .Include(pws => pws.DayExercise)
+                    .ThenInclude(de => de.Exercise)
+                .FirstAsync(pws => pws.Id == plainedWorkoutSetId);
+        }
+
         public async Task<WorkoutSession> GetOrCreateSessionAsync(int dayId, DateTime date)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var session = await context.WorkoutSession
+            var session = await context.WorkoutSessions
                 .Include(s => s.WorkoutSets)
                 .FirstOrDefaultAsync(s => s.DayId == dayId && s.Date.Date == date.Date);
 
@@ -37,7 +83,7 @@ namespace TrainingManager.Services
                     DayId = dayId,
                     Date = date.Date
                 };
-                context.WorkoutSession.Add(session);
+                context.WorkoutSessions.Add(session);
                 await context.SaveChangesAsync();
             }
 
@@ -58,7 +104,7 @@ namespace TrainingManager.Services
             if (dayExercise == null)
                 throw new ArgumentException($"DayExercises with Id={dayExerciseId} not found");
 
-            var session = await context.WorkoutSession.FindAsync(sessionId);
+            var session = await context.WorkoutSessions.FindAsync(sessionId);
             if (session == null)
                 throw new ArgumentException($"WorkoutSession with Id={sessionId} not found");
 
@@ -75,7 +121,7 @@ namespace TrainingManager.Services
                 WorkoutSessionId = sessionId
             };
 
-            context.WorkoutSet.Add(set);
+            context.WorkoutSets.Add(set);
             await context.SaveChangesAsync();
 
             return set;
@@ -84,7 +130,7 @@ namespace TrainingManager.Services
         public async Task UpdateSetAsync(int setId, int reps, double? weight, bool isCompleted)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var set = await context.WorkoutSet.FindAsync(setId);
+            var set = await context.WorkoutSets.FindAsync(setId);
             if (set == null)
                 throw new ArgumentException($"WorkoutSet with Id={setId} not found");
 
@@ -97,10 +143,10 @@ namespace TrainingManager.Services
         public async Task DeleteSetAsync(int setId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var set = await context.WorkoutSet.FindAsync(setId);
+            var set = await context.WorkoutSets.FindAsync(setId);
             if (set != null)
             {
-                context.WorkoutSet.Remove(set);
+                context.WorkoutSets.Remove(set);
                 await context.SaveChangesAsync();
             }
         }
@@ -108,7 +154,7 @@ namespace TrainingManager.Services
         public async Task<List<WorkoutSet>> GetSetsForSessionAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            return await context.WorkoutSet
+            return await context.WorkoutSets
                 .Where(s => s.WorkoutSessionId == sessionId)
                 .Include(s => s.DayExercises)
                 .ThenInclude(de => de.Exercise)
@@ -120,7 +166,7 @@ namespace TrainingManager.Services
         public async Task<List<WorkoutSet>> GetProgressDataAsync(int exerciseId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            return await context.WorkoutSet
+            return await context.WorkoutSets
                 .Where(ws => ws.DayExercises.ExerciseId == exerciseId)
                 .Include(ws => ws.WorkoutSession)
                 .Include(ws => ws.DayExercises)
@@ -132,7 +178,7 @@ namespace TrainingManager.Services
         public async Task<WorkoutSession?> GetSessionByIdAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            return await context.WorkoutSession
+            return await context.WorkoutSessions
                 .Include(s => s.WorkoutSets)
                     .ThenInclude(ws => ws.DayExercises)
                         .ThenInclude(de => de.Exercise)

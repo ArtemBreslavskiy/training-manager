@@ -14,8 +14,10 @@ namespace TrainingManager.Models
         public int Id { get; set; }
         [Column("name")]
         public string? Name { get; set; }
-        [Column("orderIndex")]
-        public int OrderIndex { get; set; }
+        [Column("notes")]
+        public string? Notes { get; set; }
+        [Column("orderInProgram")]
+        public int OrderInProgram { get; set; }
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
         [Column("updatedAt")]

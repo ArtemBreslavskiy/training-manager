@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:TrainingManager.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Name="Root"
              x:Class="TrainingManager.Views.WelcomePageView"
              x:CompileBindings="False">
 
@@ -28,9 +27,9 @@
 
                 <ItemsControl.ItemTemplate>
 		            <DataTemplate>
-			            <Border Padding="10" Margin="5" BorderThickness="1" BorderBrush="Gray" CornerRadius="4" Width="250">
+			            <Border Padding="10" Margin="5" BorderThickness="2" BorderBrush="Gray" CornerRadius="4" Width="250">
 							<Grid ColumnDefinitions="*,Auto,Auto">
-								<TextBlock Text="{Binding Name}"></TextBlock>
+								<TextBlock Grid.Column="0" Text="{Binding Name}"></TextBlock>
 
                                 <Button Grid.Column="1" Content="Go" 
                                     Command="{Binding DataContext.GoSelectedTrainingProgramPageCommand,
@@ -47,6 +46,7 @@
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+
             </ItemsControl>
         </ScrollViewer>
 

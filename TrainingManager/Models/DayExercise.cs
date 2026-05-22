@@ -18,14 +18,8 @@ namespace TrainingManager.Models
         public int ExerciseId { get; set; }
         [Column("orderInDay")]
         public int OrderInDay { get; set; }
-        [Column("plainedSetsCount")]
-        public int? PlainedSetsCount { get; set; }
-        [Column("plainedRepsCount")]
-        public int? PlainedRepsCount { get; set; }
-        [Column("plainedSetsWeight")]
-        public double? PlainedWeight { get; set; }
         public Day Day { get; set; }
         public Exercise Exercise { get; set; }
-        public ICollection<WorkoutSet> WorkoutSets { get; set; }
+        public ICollection<PlainedWorkoutSet> PlainedWorkoutSets { get; set; } = new List<PlainedWorkoutSet>();
     }
 }

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace TrainingManager.Views;
 
-public partial class WelcomePageView : UserControl
+public partial class TrainingProgramPageView : UserControl
 {
-    public WelcomePageView()
+    public TrainingProgramPageView()
     {
         AvaloniaXamlLoader.Load(this);
     }

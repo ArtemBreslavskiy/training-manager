@@ -22,7 +22,7 @@ namespace TrainingManager.Services
         public async Task<List<Exercise>> GetAllExercisesAsync()
         {
             await using var context = await _factory.CreateDbContextAsync();
-            return await context.Exercise
+            return await context.Exercises
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
@@ -30,14 +30,14 @@ namespace TrainingManager.Services
         public async Task<Exercise?> GetExerciseByIdAsync(int exerciseId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            return await context.Exercise
+            return await context.Exercises
                 .FirstOrDefaultAsync(e => e.Id == exerciseId);
         }
 
         public async Task<Exercise?> GetExerciseByNameAsync(string name)
         {
             await using var ctx = await _factory.CreateDbContextAsync();
-            return await ctx.Exercise
+            return await ctx.Exercises
                 .FirstOrDefaultAsync(e => e.Name == name);
         }
 
@@ -51,7 +51,7 @@ namespace TrainingManager.Services
                 UpdatedAt = DateTime.UtcNow,
             };
 
-            context.Exercise.Add(exercise);
+            context.Exercises.Add(exercise);
             await context.SaveChangesAsync();
             return exercise;
         }
@@ -59,7 +59,7 @@ namespace TrainingManager.Services
         public async Task DeleteExerciseAsync(int exerciseId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var exercise = await context.Exercise.FindAsync(exerciseId);
+            var exercise = await context.Exercises.FindAsync(exerciseId);
             if (exercise == null)
                 return;
 
@@ -67,7 +67,7 @@ namespace TrainingManager.Services
             if (isUsed)
                 throw new InvalidOperationException("You cannot delete an exercise that is used in training programs.");
 
-            context.Exercise.Remove(exercise);
+            context.Exercises.Remove(exercise);
             await context.SaveChangesAsync();
         }
 
@@ -75,9 +75,7 @@ namespace TrainingManager.Services
             int dayId,
             int exerciseId,
             int orderInDay,
-            int? plannedSetsCount = null,
-            int? plannedRepsCount = null,
-            double? plannedWeight = null
+            List<PlainedWorkoutSet> plainedWorkoutSets
         )
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -85,7 +83,7 @@ namespace TrainingManager.Services
             if (day == null)
                 throw new ArgumentException($"Day with Id={dayId} not found", nameof(dayId));
 
-            var exercise = await context.Exercise.FindAsync(exerciseId);
+            var exercise = await context.Exercises.FindAsync(exerciseId);
             if (exercise == null)
                 throw new ArgumentException($"Exercise with Id={exerciseId} not found", nameof(exerciseId));
 
@@ -94,9 +92,7 @@ namespace TrainingManager.Services
                 DayId = dayId,
                 ExerciseId = exerciseId,
                 OrderInDay = orderInDay,
-                PlainedSetsCount = plannedSetsCount,
-                PlainedRepsCount = plannedRepsCount,
-                PlainedWeight = plannedWeight
+                PlainedWorkoutSets = plainedWorkoutSets
             };
 
             context.DayExercises.Add(dayExercise);
@@ -104,6 +100,7 @@ namespace TrainingManager.Services
 
             return await context.DayExercises
                 .Include(de => de.Exercise)
+                .Include(d => d.PlainedWorkoutSets)
                 .FirstAsync(de => de.Id == dayExercise.Id);
         }
 
@@ -130,9 +127,7 @@ namespace TrainingManager.Services
 
         public async Task UpdatePlannedParametersAsync(
             int dayExerciseId,
-            int? plannedSets = null, 
-            int? plannedReps = null, 
-            double? plannedWeight = null
+            List<PlainedWorkoutSet> plainedWorkoutSets
         )
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -140,9 +135,7 @@ namespace TrainingManager.Services
             if (dayExercise == null)
                 throw new ArgumentException($"The DayExercises entry with Id={dayExerciseId} was not found");
 
-            dayExercise.PlainedSetsCount = plannedSets;
-            dayExercise.PlainedRepsCount = plannedReps;
-            dayExercise.PlainedWeight = plannedWeight;
+            dayExercise.PlainedWorkoutSets = plainedWorkoutSets;
 
             await context.SaveChangesAsync();
         }

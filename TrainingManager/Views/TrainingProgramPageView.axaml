@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TrainingManager.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TrainingManager.Views.TrainingProgramPageView"
+             x:CompileBindings="False">
+
+    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+	    <Grid RowDefinitions="Auto,Auto,*" HorizontalAlignment="Center">
+		    <TextBlock Grid.Row="0" Text="{Binding SelectedProgramName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding DayViewModels}">
+
+			    <ItemsControl.ItemContainerTheme>
+                    <ControlTheme TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="15"></Setter>
+                    </ControlTheme>
+                </ItemsControl.ItemContainerTheme>
+
+                <ItemsControl.ItemsPanel>
+		            <ItemsPanelTemplate>
+			            <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+		            <DataTemplate>
+			            <Border Padding="10" Margin="10" BorderThickness="2" BorderBrush="Gray" CornerRadius="4" Width="220">
+				            <Grid RowDefinitions="Auto,*,Auto">
+							    <TextBlock Grid.Row="0" Text="{Binding Day.Name}" FontSize="20" HorizontalAlignment="Center" Margin="5 5 5 8"></TextBlock>
+
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding LimitedExercises}">
+								
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="Margin" Value="5"></Setter>
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+
+                                    <ItemsControl.ItemsPanel>
+		                                <ItemsPanelTemplate>
+			                                <StackPanel></StackPanel>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+		                                <DataTemplate>
+			                                <TextBlock Grid.Column="0" Text="{Binding Exercise.Name}"></TextBlock>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Grid.Row="2" Content="Edit" Background="#CC5500" HorizontalAlignment="Center" Margin="5 8 5 5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
+                                    Command="{Binding DataContext.SelectDayCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding Day}">
+                                </Button>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Grid.Row="2">
+                <TextBlock Text="{Binding SelectedDayName}" Margin="20" FontSize="30"></TextBlock>
+
+                <ItemsControl ItemsSource="{Binding DayExerciseViewModels}">
+
+	                <ItemsControl.ItemContainerTheme>
+                        <ControlTheme TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="10"></Setter>
+                        </ControlTheme>
+                    </ItemsControl.ItemContainerTheme>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+	                        <StackPanel></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                           <Grid ColumnDefinitions="Auto,Auto,Auto">
+                                <TextBlock Grid.Column="0" Text="{Binding DayExercise.Exercise.Name}" Margin="10" FontSize="20"></TextBlock>
+
+                                <ItemsControl Grid.Column="1" ItemsSource="{Binding PlainedWorkoutSetViewModels}">
+                                    <ItemsControl.ItemContainerTheme>
+                                        <ControlTheme TargetType="ContentPresenter">
+                                            <Setter Property="Margin" Value="10"></Setter>
+                                        </ControlTheme>
+                                    </ItemsControl.ItemContainerTheme>
+
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+	                                        <WrapPanel></WrapPanel>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+											<StackPanel Orientation="Horizontal">
+
+												<TextBlock Text="Reps" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                                <TextBox Width="50" Text="{Binding InputPlannedRepsCount}"></TextBox>
+
+                                                <TextBlock Text="Weight" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                                <TextBox  Width="50" Text="{Binding InputPlannedWeight}"></TextBox>
+
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Grid.Column="2" Content="Add" Background="#008000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="60"
+                                    Command="{Binding DataContext.AddEmptyPlainedSetCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}">
+                                </Button>
+
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel Orientation="Horizontal" Margin="10 20 20 50" Spacing="10">
+			        <TextBox Watermark="Name" Width="160" Height="32" Text="{Binding InputExerciseName}"></TextBox>
+                    <Button Content="Add" Background="#008000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="60"
+                        Command="{Binding AddExerciseToDayAsyncCommand}"></Button>
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

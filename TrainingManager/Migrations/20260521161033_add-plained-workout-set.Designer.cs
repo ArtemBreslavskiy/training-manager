@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrainingManager.Data;
@@ -11,9 +12,11 @@ using TrainingManager.Data;
 namespace TrainingManager.Migrations
 {
     [DbContext(typeof(TrainingContext))]
-    partial class TrainingContextModelSnapshot : ModelSnapshot
+    [Migration("20260521161033_add-plained-workout-set")]
+    partial class addplainedworkoutset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,13 +42,9 @@ namespace TrainingManager.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<string>("Notes")
-                        .HasColumnType("text")
-                        .HasColumnName("notes");
-
                     b.Property<int>("OrderInProgram")
                         .HasColumnType("integer")
-                        .HasColumnName("orderInProgram");
+                        .HasColumnName("orderIndex");
 
                     b.Property<int>("TrainingProgramId")
                         .HasColumnType("integer");
@@ -110,6 +109,7 @@ namespace TrainingManager.Migrations
                         .HasColumnName("name");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("notes");
 

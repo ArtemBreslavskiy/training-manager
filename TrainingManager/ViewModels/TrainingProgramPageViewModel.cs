@@ -1,54 +1,107 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TrainingManager.Services;
 using TrainingManager.Models;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using TrainingManager.Services;
 using TrainingManager.Utils;
 
 namespace TrainingManager.ViewModels
 {
     public partial class TrainingProgramPageViewModel : ViewModelBase
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exerciseService;
         private readonly WorkoutService _workoutService;
         private readonly PagesUtils _pagesUtils;
         private TrainingProgram? _program;
+        private int maxExercises = 5;
+
+        public IAsyncRelayCommand AddExerciseToDayAsyncCommand { get; }
+        public IAsyncRelayCommand<DayExerciseViewModel> AddEmptyPlainedSetCommand { get; }
+
+        [ObservableProperty] private ObservableCollection<DayViewModel> dayViewModels = new();
+        [ObservableProperty] private ObservableCollection<DayExerciseViewModel> dayExerciseViewModels = new();
 
         [ObservableProperty] private int selectedProgramId;
-        [ObservableProperty] private int selectedDayOrder;
-        [ObservableProperty] private int selectedExerciseOrder;
+        [ObservableProperty] private string selectedProgramName;
+        [ObservableProperty] private int selectedDayId;
+        [ObservableProperty] private string selectedDayName;
         [ObservableProperty] private int inputDaysCount;
         [ObservableProperty] private string inputExerciseName;
-        [ObservableProperty] private int? inputPlannedSetsCount;
-        [ObservableProperty] private int? inputPlannedRepsCount;
-        [ObservableProperty] private double? inputPlannedWeigths;
 
         public TrainingProgramPageViewModel(
+            IServiceProvider serviceProvider,
             TrainingProgramService trainingProgramService,
             ExerciseService exersiceService,
             WorkoutService workoutService,
-            PagesUtils pagesUtils,
-            int programId)
+            PagesUtils pagesUtils)
         {
+            _serviceProvider = serviceProvider;
             _trainingProgramService = trainingProgramService;
             _exerciseService = exersiceService;
             _workoutService = workoutService;
             _pagesUtils = pagesUtils;
-            SelectedProgramId = programId;
 
-            LoadDataAsync();
+            AddExerciseToDayAsyncCommand = new AsyncRelayCommand(AddExerciseToDayAsync);
+            AddEmptyPlainedSetCommand = new AsyncRelayCommand<DayExerciseViewModel>(AddEmptyPlainedSet);
         }
 
-        private async Task LoadDataAsync()
+        partial void OnSelectedProgramIdChanged(int value)
         {
+            LoadProgramAsync();
+        }
+
+        partial void OnSelectedDayIdChanged(int value)
+        {
+            LoadDayExercisesViewModels();
+        }
+
+        private async Task LoadProgramAsync()
+        {
+            DayViewModels.Clear();
+
             _program = await _trainingProgramService.GetProgramByIdAsync(SelectedProgramId);
+            SelectedProgramName = _program.Name;
+
+            var sortedDays = _program.ProgramDays.OrderBy(d => d.OrderInProgram).ToList();
+            foreach (var day in _program.ProgramDays.OrderBy(d => d.OrderInProgram))
+            {
+                DayViewModels.Add(new DayViewModel(day, maxExercises));
+            }
+
+            if (sortedDays.Any())
+            {
+                var firstDay = sortedDays.First();
+                SelectedDayId = firstDay.Id;
+                SelectedDayName = firstDay.Name;
+            }
+            else
+            {
+                SelectedDayId = 0;
+                SelectedDayName = string.Empty;
+            }
+
+            LoadDayExercisesViewModels();
+        }
+
+        private void LoadDayExercisesViewModels()
+        {
+            DayExerciseViewModels.Clear();
+
+            foreach (var dayExercise in _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId).DayExercises)
+            {
+                var dayExerciseViewModel = _serviceProvider.GetRequiredService<DayExerciseViewModel>();
+                dayExerciseViewModel.LoadData(dayExercise);
+                DayExerciseViewModels.Add(dayExerciseViewModel);
+            }
         }
 
         private async Task<Exercise> FindOrCreateExercise(string name)
@@ -63,32 +116,6 @@ namespace TrainingManager.ViewModels
         }
 
         [RelayCommand]
-        public async Task AddExerciseToDayAsync()
-        {
-            Exercise exercise = await FindOrCreateExercise(InputExerciseName);
-            Day day = _program.ProgramDays.ElementAt(SelectedDayOrder);
-            int orderInDay = day.DayExercises.Any() ? day.DayExercises.Max(de => de.OrderInDay) + 1 : 1;
-
-            await _exerciseService.AddExerciseToDayAsync(
-                day.Id,
-                exercise.Id,
-                orderInDay,
-                InputPlannedSetsCount,
-                InputPlannedRepsCount,
-                InputPlannedWeigths
-            );
-        }
-
-        [RelayCommand]
-        public async Task RemoveExerciseFromDayAsync()
-        {
-            int dayExerciseId = _program.ProgramDays.ElementAt(SelectedDayOrder)
-                .DayExercises.ElementAt(SelectedExerciseOrder).Id;
-
-            await _exerciseService.RemoveExerciseFromDayAsync(dayExerciseId);
-        }
-
-        [RelayCommand]
         public async Task UpdateTrainingProgramDaysCountAsync()
         {
             var newProgram = await _trainingProgramService.GetProgramByIdAsync(SelectedProgramId);
@@ -98,34 +125,52 @@ namespace TrainingManager.ViewModels
         }
 
         [RelayCommand]
-        public async Task UpdatePlannedParametersAsync()
+        public void SelectDay(Day day)
         {
-            var newProgram = await _trainingProgramService.GetProgramByIdAsync(SelectedProgramId);
-            int dayExerciseId = newProgram.ProgramDays.ElementAt(SelectedDayOrder)
-                .DayExercises.ElementAt(SelectedExerciseOrder).Id;
+            SelectedDayId = day.Id;
+            SelectedDayName = day.Name;
+        }
 
-            await _exerciseService.UpdatePlannedParametersAsync(
-                dayExerciseId,
-                InputPlannedSetsCount,
-                InputPlannedRepsCount,
-                InputPlannedWeigths
+        public async Task AddExerciseToDayAsync()
+        {
+            Exercise exercise = await FindOrCreateExercise(InputExerciseName);
+            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
+            int orderInDay = day.DayExercises.Any() ? day.DayExercises.Max(de => de.OrderInDay) + 1 : 1;
+
+            var newDayExercise = await _exerciseService.AddExerciseToDayAsync(
+                day.Id,
+                exercise.Id,
+                orderInDay,
+                new List<PlainedWorkoutSet>()
             );
+
+            day.DayExercises.Add(newDayExercise);
+            LoadDayExercisesViewModels();
+        }
+
+        [RelayCommand]
+        public async Task RemoveExerciseFromDayAsync(DayExerciseViewModel dayExerciseViewModel)
+        {
+            await _exerciseService.RemoveExerciseFromDayAsync(dayExerciseViewModel.DayExercise.Id);
+        }
+
+        public async Task AddEmptyPlainedSet(DayExerciseViewModel dayExerciseViewModel)
+        {
+            var plainedWorkoutSet = await _workoutService.AddPlainedWorkoutSetAsync(dayExerciseViewModel.DayExercise.Id);
+            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
+            var dayExercise = day?.DayExercises.FirstOrDefault(de => de.Id == dayExerciseViewModel.DayExercise.Id);
+
+            dayExercise.PlainedWorkoutSets.Add(plainedWorkoutSet);
+
+            LoadDayExercisesViewModels();
         }
 
         [RelayCommand]
         public async Task GoTodaySessionPage()
         {
-            int dayId = _program.ProgramDays.ElementAt(SelectedDayOrder).Id;
-            WorkoutSession session = await _workoutService.GetOrCreateSessionAsync(dayId, DateTime.Today);
+            WorkoutSession session = await _workoutService.GetOrCreateSessionAsync(SelectedDayId, DateTime.Today);
 
             _pagesUtils.GoSessionPage(session.Id);
-        }
-
-        [RelayCommand]
-        public async Task GoChartsPage()
-        {
-            int exerciseId = _program.ProgramDays.ElementAt(SelectedDayOrder).DayExercises.ElementAt(SelectedExerciseOrder).ExerciseId;
-            _pagesUtils.GoChartsPage(exerciseId);
         }
     }
 }
