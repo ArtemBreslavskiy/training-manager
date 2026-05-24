@@ -14,7 +14,7 @@ namespace TrainingManager.Data
         public DbSet<Day> Days { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<DayExercise> DayExercises { get; set; }
-        public DbSet<PlainedWorkoutSet> PlainedWorkoutSets { get; set; }
+        public DbSet<PlannedWorkoutSet> PlannedWorkoutSets { get; set; }
         public DbSet<WorkoutSet> WorkoutSets { get; set; }
         public DbSet<WorkoutSession> WorkoutSessions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

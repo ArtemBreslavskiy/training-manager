@@ -28,7 +28,7 @@ namespace TrainingManager.Services
                         .ThenInclude(de => de.Exercise)
                 .Include(p => p.ProgramDays)
                     .ThenInclude(d => d.DayExercises)
-                        .ThenInclude(de => de.PlainedWorkoutSets)
+                        .ThenInclude(de => de.PlannedWorkoutSets)
                 .OrderBy(p => p.Name).ToListAsync();
         }
 
@@ -41,7 +41,7 @@ namespace TrainingManager.Services
                         .ThenInclude(de => de.Exercise)
                 .Include(p => p.ProgramDays)
                     .ThenInclude(d => d.DayExercises)
-                        .ThenInclude(de => de.PlainedWorkoutSets)
+                        .ThenInclude(de => de.PlannedWorkoutSets)
                 .FirstOrDefaultAsync(p => p.Id == programId);
         }
 
@@ -54,6 +54,7 @@ namespace TrainingManager.Services
                 DaysCount = daysCount,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                StartDate = DateTime.UtcNow,
                 ProgramDays = new List<Day>()
             };
 
@@ -122,6 +123,14 @@ namespace TrainingManager.Services
                 await context.SaveChangesAsync();
             }
             return program;
+        }
+
+        public async Task<int> GetTodayDayOrder(int programId)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var program = await GetProgramByIdAsync(programId);
+
+            return ((DateTime.Today - program.StartDate.Date).Days) % program.DaysCount + 1;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace TrainingManager.Models
         public int OrderInDay { get; set; }
         public Day Day { get; set; }
         public Exercise Exercise { get; set; }
-        public ICollection<PlainedWorkoutSet> PlainedWorkoutSets { get; set; } = new List<PlainedWorkoutSet>();
+        public ICollection<WorkoutSet> WorkoutSets { get; set; } = new List<WorkoutSet>();
+        public ICollection<PlannedWorkoutSet> PlannedWorkoutSets { get; set; } = new List<PlannedWorkoutSet>();
     }
 }

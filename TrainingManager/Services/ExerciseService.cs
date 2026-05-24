@@ -75,7 +75,7 @@ namespace TrainingManager.Services
             int dayId,
             int exerciseId,
             int orderInDay,
-            List<PlainedWorkoutSet> plainedWorkoutSets
+            List<PlannedWorkoutSet> plainedWorkoutSets
         )
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -92,7 +92,7 @@ namespace TrainingManager.Services
                 DayId = dayId,
                 ExerciseId = exerciseId,
                 OrderInDay = orderInDay,
-                PlainedWorkoutSets = plainedWorkoutSets
+                PlannedWorkoutSets = plainedWorkoutSets
             };
 
             context.DayExercises.Add(dayExercise);
@@ -100,7 +100,7 @@ namespace TrainingManager.Services
 
             return await context.DayExercises
                 .Include(de => de.Exercise)
-                .Include(d => d.PlainedWorkoutSets)
+                .Include(d => d.PlannedWorkoutSets)
                 .FirstAsync(de => de.Id == dayExercise.Id);
         }
 
@@ -127,7 +127,7 @@ namespace TrainingManager.Services
 
         public async Task UpdatePlannedParametersAsync(
             int dayExerciseId,
-            List<PlainedWorkoutSet> plainedWorkoutSets
+            List<PlannedWorkoutSet> plainedWorkoutSets
         )
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -135,7 +135,7 @@ namespace TrainingManager.Services
             if (dayExercise == null)
                 throw new ArgumentException($"The DayExercises entry with Id={dayExerciseId} was not found");
 
-            dayExercise.PlainedWorkoutSets = plainedWorkoutSets;
+            dayExercise.PlannedWorkoutSets = plainedWorkoutSets;
 
             await context.SaveChangesAsync();
         }

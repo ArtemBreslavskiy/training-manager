@@ -20,6 +20,8 @@ namespace TrainingManager.Models
         public DateTime CreatedAt { get; set; }
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; }
+        [Column("startDate")]
+        public DateTime StartDate { get; set; }
         public ICollection<Day> ProgramDays { get; set; }
     }
 }

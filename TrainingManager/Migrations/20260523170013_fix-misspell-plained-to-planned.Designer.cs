@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrainingManager.Data;
@@ -11,9 +12,11 @@ using TrainingManager.Data;
 namespace TrainingManager.Migrations
 {
     [DbContext(typeof(TrainingContext))]
-    partial class TrainingContextModelSnapshot : ModelSnapshot
+    [Migration("20260523170013_fix-misspell-plained-to-planned")]
+    partial class fixmisspellplainedtoplanned
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -233,9 +236,6 @@ namespace TrainingManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DayExerciseId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("DayExercisesId")
                         .HasColumnType("integer")
                         .HasColumnName("dayExercisesId");
@@ -262,7 +262,7 @@ namespace TrainingManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DayExerciseId");
+                    b.HasIndex("DayExercisesId");
 
                     b.HasIndex("WorkoutSessionId");
 
@@ -323,9 +323,9 @@ namespace TrainingManager.Migrations
 
             modelBuilder.Entity("TrainingManager.Models.WorkoutSet", b =>
                 {
-                    b.HasOne("TrainingManager.Models.DayExercise", "DayExercise")
+                    b.HasOne("TrainingManager.Models.DayExercise", "DayExercises")
                         .WithMany("WorkoutSets")
-                        .HasForeignKey("DayExerciseId")
+                        .HasForeignKey("DayExercisesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -335,7 +335,7 @@ namespace TrainingManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DayExercise");
+                    b.Navigation("DayExercises");
 
                     b.Navigation("WorkoutSession");
                 });

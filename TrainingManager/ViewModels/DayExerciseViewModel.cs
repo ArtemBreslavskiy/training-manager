@@ -15,7 +15,7 @@ namespace TrainingManager.ViewModels
         private readonly IServiceProvider _serviceProvider;
 
         [ObservableProperty] private DayExercise dayExercise;
-        [ObservableProperty] private ObservableCollection<PlainedWorkoutSetViewModel> plainedWorkoutSetViewModels = new();
+        [ObservableProperty] private ObservableCollection<PlannedWorkoutSetViewModel> plainedWorkoutSetViewModels = new();
 
         public DayExerciseViewModel(IServiceProvider serviceProvider)
         {
@@ -24,16 +24,17 @@ namespace TrainingManager.ViewModels
 
         public void LoadData(DayExercise dayExercise)
         {
-            this.dayExercise = dayExercise;
+            DayExercise = dayExercise;
             PlainedWorkoutSetViewModels.Clear();
 
-            foreach (var plainedWorkoutSet in this.dayExercise.PlainedWorkoutSets)
+            foreach (var plainedWorkoutSet in DayExercise.PlannedWorkoutSets)
             {
-                var plainedWorkoutSetViewModel = _serviceProvider.GetRequiredService<PlainedWorkoutSetViewModel>();
-                plainedWorkoutSetViewModel.PlainedWorkoutSet = plainedWorkoutSet;
+                var plainedWorkoutSetViewModel = _serviceProvider.GetRequiredService<PlannedWorkoutSetViewModel>();
+                plainedWorkoutSetViewModel.LoadData(plainedWorkoutSet);
 
                 PlainedWorkoutSetViewModels.Add(plainedWorkoutSetViewModel);
             }
+            PlainedWorkoutSetViewModels = new ObservableCollection<PlannedWorkoutSetViewModel>(PlainedWorkoutSetViewModels.OrderBy(vm => vm.PlainedWorkoutSet.OrderInExercise));
         }
     }
 }

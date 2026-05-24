@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace TrainingManager.Models
 {
-    [Table("plainedWorkoutSet")]
-    public class PlainedWorkoutSet
+    [Table("plannedWorkoutSet")]
+    public class PlannedWorkoutSet
     {
         [Column("id")]
         public int Id { get; set; }
-        [Column("plainedRepsCount")]
-        public int? PlainedRepsCount { get; set; }
-        [Column("plainedSetsWeight")]
-        public double? PlainedWeight { get; set; }
+        [Column("orderInExercise")]
+        public int OrderInExercise { get; set; }
+        [Column("plannedRepsCount")]
+        public int? PlannedRepsCount { get; set; }
+        [Column("plannedSetsWeight")]
+        public double? PlannedWeight { get; set; }
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
         [Column("updatedAt")]

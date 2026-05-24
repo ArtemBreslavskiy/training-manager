@@ -20,6 +20,7 @@ namespace TrainingManager.ViewModels
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exerciseService;
         private readonly WorkoutService _workoutService;
+        private readonly PlannedWorkoutSetService _plannedWorkoutSetService;
         private readonly PagesUtils _pagesUtils;
         private TrainingProgram? _program;
         private int maxExercises = 5;
@@ -42,12 +43,14 @@ namespace TrainingManager.ViewModels
             TrainingProgramService trainingProgramService,
             ExerciseService exersiceService,
             WorkoutService workoutService,
+            PlannedWorkoutSetService plannedWorkoutSetService,
             PagesUtils pagesUtils)
         {
             _serviceProvider = serviceProvider;
             _trainingProgramService = trainingProgramService;
             _exerciseService = exersiceService;
             _workoutService = workoutService;
+            _plannedWorkoutSetService = plannedWorkoutSetService;
             _pagesUtils = pagesUtils;
 
             AddExerciseToDayAsyncCommand = new AsyncRelayCommand(AddExerciseToDayAsync);
@@ -141,7 +144,7 @@ namespace TrainingManager.ViewModels
                 day.Id,
                 exercise.Id,
                 orderInDay,
-                new List<PlainedWorkoutSet>()
+                new List<PlannedWorkoutSet>()
             );
 
             day.DayExercises.Add(newDayExercise);
@@ -156,11 +159,13 @@ namespace TrainingManager.ViewModels
 
         public async Task AddEmptyPlainedSet(DayExerciseViewModel dayExerciseViewModel)
         {
-            var plainedWorkoutSet = await _workoutService.AddPlainedWorkoutSetAsync(dayExerciseViewModel.DayExercise.Id);
-            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
+            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == dayExerciseViewModel.DayExercise.DayId);
             var dayExercise = day?.DayExercises.FirstOrDefault(de => de.Id == dayExerciseViewModel.DayExercise.Id);
 
-            dayExercise.PlainedWorkoutSets.Add(plainedWorkoutSet);
+            int orderInExercise = dayExerciseViewModel.DayExercise.PlannedWorkoutSets.Count + 1;
+            var plainedWorkoutSet = await _plannedWorkoutSetService.CreatePlainedWorkoutSetAsync(dayExerciseViewModel.DayExercise.Id, orderInExercise);
+            
+            dayExercise.PlannedWorkoutSets.Add(plainedWorkoutSet);
 
             LoadDayExercisesViewModels();
         }
@@ -168,7 +173,7 @@ namespace TrainingManager.ViewModels
         [RelayCommand]
         public async Task GoTodaySessionPage()
         {
-            WorkoutSession session = await _workoutService.GetOrCreateSessionAsync(SelectedDayId, DateTime.Today);
+            WorkoutSession session = await _workoutService.GetOrCreateWorkoutSessionAsync(SelectedDayId, DateTime.Today);
 
             _pagesUtils.GoSessionPage(session.Id);
         }

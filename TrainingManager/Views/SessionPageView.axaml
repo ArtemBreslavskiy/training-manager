@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TrainingManager.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TrainingManager.Views.SessionPageView"
+             x:CompileBindings="False">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+	    <Grid RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0" Text="{Binding DayName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSessionViewModel.ExerciseSessionViewModels}">
+
+			    <ItemsControl.ItemContainerTheme>
+                    <ControlTheme TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="15"></Setter>
+                    </ControlTheme>
+                </ItemsControl.ItemContainerTheme>
+
+                <ItemsControl.ItemsPanel>
+		            <ItemsPanelTemplate>
+			            <StackPanel></StackPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+		            <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Grid.Column="0" Text="{Binding ExerciseName}" Margin="10" FontSize="20"></TextBlock>
+
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSessionViewModel.ExerciseSessionViewModels}">
+
+			                    <ItemsControl.ItemContainerTheme>
+                                    <ControlTheme TargetType="ContentPresenter">
+                                        <Setter Property="Margin" Value="15"></Setter>
+                                    </ControlTheme>
+                                </ItemsControl.ItemContainerTheme>
+
+                                <ItemsControl.ItemsPanel>
+		                            <ItemsPanelTemplate>
+			                            <WrapPanel></WrapPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
+											
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Reps" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PlainedRepsCount, StringFormat='Planned, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding PlainedWeight, StringFormat='Planned, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Weight" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastRepsCount, StringFormat='Last, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding LastWeight, StringFormat='Last, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+
+                            </ItemsControl>
+
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

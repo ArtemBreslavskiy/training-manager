@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,53 +20,18 @@ namespace TrainingManager.Services
             _factory = factory;
         }
 
-        public async Task<PlainedWorkoutSet> AddPlainedWorkoutSetAsync(int dayExerciseId, int? plainedRepsCount = null, double? plainedWeight = null)
+        public async Task<WorkoutSession?> GetWorkoutSessionByIdAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var dayExercise = await context.DayExercises
-                .Include(d => d.PlainedWorkoutSets)
-                .FirstAsync(d => d.Id == dayExerciseId);
-
-            if (dayExercise == null)
-                throw new ArgumentException($"DayExercises with Id={dayExerciseId} not found");
-
-            PlainedWorkoutSet plainedWorkoutSet = new()
-            {
-                PlainedRepsCount = plainedRepsCount,
-                PlainedWeight = plainedWeight,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-            };
-
-            dayExercise.PlainedWorkoutSets.Add(plainedWorkoutSet);
-            await context.SaveChangesAsync();
-
-            return await context.PlainedWorkoutSets
-                .Include(pws => pws.DayExercise)
-                    .ThenInclude(de => de.Exercise) 
-                .FirstAsync(pws => pws.Id == plainedWorkoutSet.Id);
+            return await context.WorkoutSessions
+                .Include(s => s.Day)
+                .Include(s => s.WorkoutSets)
+                    .ThenInclude(ws => ws.DayExercise)
+                        .ThenInclude(de => de.Exercise)
+                .FirstOrDefaultAsync(s => s.Id == sessionId);
         }
 
-        public async Task<PlainedWorkoutSet> UpdatePlainedWorkoutSetAsync(int plainedWorkoutSetId, int? newPlainedRepsCount, double? newPlainedWeight)
-        {
-            await using var context = await _factory.CreateDbContextAsync();
-            var plainedWorkoutSet = await context.PlainedWorkoutSets.FindAsync(plainedWorkoutSetId);
-
-            if (plainedWorkoutSet == null)
-                throw new ArgumentException($"DayExercises with Id={plainedWorkoutSetId} not found");
-
-            plainedWorkoutSet.PlainedRepsCount = newPlainedRepsCount;
-            plainedWorkoutSet.PlainedWeight = newPlainedWeight;
-            plainedWorkoutSet.UpdatedAt = DateTime.UtcNow;
-            await context.SaveChangesAsync();
-
-            return await context.PlainedWorkoutSets
-                .Include(pws => pws.DayExercise)
-                    .ThenInclude(de => de.Exercise)
-                .FirstAsync(pws => pws.Id == plainedWorkoutSetId);
-        }
-
-        public async Task<WorkoutSession> GetOrCreateSessionAsync(int dayId, DateTime date)
+        public async Task<WorkoutSession> GetOrCreateWorkoutSessionAsync(int dayId, DateTime date)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var session = await context.WorkoutSessions
@@ -90,10 +56,10 @@ namespace TrainingManager.Services
             return session;
         }
 
-        public async Task<WorkoutSet> AddSetAsync(
+        public async Task<WorkoutSet> CreateWorkoutSetAsync(
             int sessionId,
             int dayExerciseId,
-            int order,
+            int orderInExercise,
             double? weight,
             int reps,
             bool isCompleted = true
@@ -113,7 +79,7 @@ namespace TrainingManager.Services
 
             var set = new WorkoutSet()
             {
-                OrderInExercises = order,
+                OrderInExercise = orderInExercise,
                 RepsCount = reps,
                 Weight = weight,
                 IsComplited = isCompleted,
@@ -127,20 +93,23 @@ namespace TrainingManager.Services
             return set;
         }
 
-        public async Task UpdateSetAsync(int setId, int reps, double? weight, bool isCompleted)
+        public async Task<WorkoutSet> UpdateWorkoutSetAsync(int workoutSetId, int? repsCount, double? weight)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var set = await context.WorkoutSets.FindAsync(setId);
-            if (set == null)
-                throw new ArgumentException($"WorkoutSet with Id={setId} not found");
+            var workoutSet = await context.WorkoutSets.FindAsync(workoutSetId);
+            if (workoutSet == null)
+                throw new ArgumentException($"WorkoutSet with Id={workoutSetId} not found");
 
-            set.RepsCount = reps;
-            set.Weight = weight;
-            set.IsComplited = isCompleted;
+            workoutSet.RepsCount = repsCount;
+            workoutSet.Weight = weight;
             await context.SaveChangesAsync();
+
+            return await context.WorkoutSets
+                .Include(x => x.WorkoutSession)
+                .FirstAsync(pws => pws.Id == workoutSetId);
         }
 
-        public async Task DeleteSetAsync(int setId)
+        public async Task DeleteWorkoutSetAsync(int setId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var set = await context.WorkoutSets.FindAsync(setId);
@@ -151,38 +120,53 @@ namespace TrainingManager.Services
             }
         }
 
-        public async Task<List<WorkoutSet>> GetSetsForSessionAsync(int sessionId)
+        public async Task<List<WorkoutSet>> GetWorkoutSetAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.WorkoutSets
                 .Where(s => s.WorkoutSessionId == sessionId)
-                .Include(s => s.DayExercises)
+                .Include(s => s.DayExercise)
                 .ThenInclude(de => de.Exercise)
-                .OrderBy(s => s.DayExercises.OrderInDay)
-                .ThenBy(s => s.OrderInExercises)
+                .OrderBy(s => s.DayExercise.OrderInDay)
+                    .ThenBy(s => s.OrderInExercise)
                 .ToListAsync();
+        }
+
+        public async Task<PlannedWorkoutSet?> GetPlannedWorkoutSets(int workoutSetId)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var workoutSet = await context.WorkoutSets.FindAsync(workoutSetId);
+            return workoutSet.DayExercise.PlannedWorkoutSets.FirstOrDefault(pws => pws.OrderInExercise == workoutSet.OrderInExercise);
+        }
+
+        public async Task<WorkoutSet> GetLastWorkoutSetsForExercise(int workoutSetId)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var workoutSet = await context.WorkoutSets
+                .Include(ws => ws.DayExercise)
+                .Include(ws => ws.WorkoutSession)
+                .FirstOrDefaultAsync(ws => ws.Id == workoutSetId);
+
+            var lastSessionDate = await context.WorkoutSets
+                .Where(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId && ws.WorkoutSession.Date.Date != workoutSet.WorkoutSession.Date.Date)
+                .MaxAsync(ws => ws.WorkoutSession.Date);
+
+            return await context.WorkoutSets
+                .FirstOrDefaultAsync(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId 
+                && ws.WorkoutSession.Date.Date == lastSessionDate 
+                && ws.OrderInExercise == workoutSet.OrderInExercise);
         }
 
         public async Task<List<WorkoutSet>> GetProgressDataAsync(int exerciseId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.WorkoutSets
-                .Where(ws => ws.DayExercises.ExerciseId == exerciseId)
+                .Where(ws => ws.DayExercise.ExerciseId == exerciseId)
                 .Include(ws => ws.WorkoutSession)
-                .Include(ws => ws.DayExercises)
+                .Include(ws => ws.DayExercise)
                 .OrderBy(ws => ws.WorkoutSession.Date)
-                .ThenBy(ws => ws.OrderInExercises)
+                    .ThenBy(ws => ws.OrderInExercise)
                 .ToListAsync();
-        }
-
-        public async Task<WorkoutSession?> GetSessionByIdAsync(int sessionId)
-        {
-            await using var context = await _factory.CreateDbContextAsync();
-            return await context.WorkoutSessions
-                .Include(s => s.WorkoutSets)
-                    .ThenInclude(ws => ws.DayExercises)
-                        .ThenInclude(de => de.Exercise)
-                .FirstOrDefaultAsync(s => s.Id == sessionId);
         }
     }
 }

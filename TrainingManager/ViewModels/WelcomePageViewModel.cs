@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace TrainingManager.ViewModels
     public partial class WelcomePageViewModel : ViewModelBase
     {
         private readonly TrainingProgramService _trainingProgramService;
+        private readonly WorkoutService _workoutService;
         private readonly PagesUtils _pagesHelper;
         private List<TrainingProgram> _allPrograms = new();
 
@@ -23,9 +25,11 @@ namespace TrainingManager.ViewModels
 
         public WelcomePageViewModel(
             TrainingProgramService trainingProgramService,
+            WorkoutService workoutService,
             PagesUtils pagesHelper)
         {
             _trainingProgramService = trainingProgramService;
+            _workoutService = workoutService;
             _pagesHelper = pagesHelper;
 
             LoadDataAsync();
@@ -70,6 +74,19 @@ namespace TrainingManager.ViewModels
         public void GoSelectedTrainingProgramPage(int programId)
         {
             _pagesHelper.GoTrainingProgramPage(programId);
+        }
+
+        [RelayCommand]
+        public async Task GoTodaySessionPage(int programId)
+        {
+            var program = await _trainingProgramService.GetProgramByIdAsync(programId);
+
+            int dayOrder = await _trainingProgramService.GetTodayDayOrder(programId);
+            int dayId = program.ProgramDays.ElementAt(dayOrder - 1).Id;
+
+            var session = await _workoutService.GetOrCreateWorkoutSessionAsync(dayId, DateTime.UtcNow);
+
+            _pagesHelper.GoSessionPage(session.Id);
         }
 
         public void ApplyFilter()

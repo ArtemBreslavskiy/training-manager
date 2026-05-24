@@ -7,7 +7,7 @@
              x:Class="TrainingManager.Views.TrainingProgramPageView"
              x:CompileBindings="False">
 
-    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 	    <Grid RowDefinitions="Auto,Auto,*" HorizontalAlignment="Center">
 		    <TextBlock Grid.Row="0" Text="{Binding SelectedProgramName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
 

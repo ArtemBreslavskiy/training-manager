@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TrainingManager.Data;
@@ -11,9 +12,11 @@ using TrainingManager.Data;
 namespace TrainingManager.Migrations
 {
     [DbContext(typeof(TrainingContext))]
-    partial class TrainingContextModelSnapshot : ModelSnapshot
+    [Migration("20260523133941_add-order-in-exercise-in-plained-workout-set")]
+    partial class addorderinexerciseinplainedworkoutset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,7 +125,7 @@ namespace TrainingManager.Migrations
                     b.ToTable("exercises");
                 });
 
-            modelBuilder.Entity("TrainingManager.Models.PlannedWorkoutSet", b =>
+            modelBuilder.Entity("TrainingManager.Models.PlainedWorkoutSet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,13 +145,13 @@ namespace TrainingManager.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("orderInExercise");
 
-                    b.Property<int?>("PlannedRepsCount")
+                    b.Property<int?>("PlainedRepsCount")
                         .HasColumnType("integer")
-                        .HasColumnName("plannedRepsCount");
+                        .HasColumnName("plainedRepsCount");
 
-                    b.Property<double?>("PlannedWeight")
+                    b.Property<double?>("PlainedWeight")
                         .HasColumnType("double precision")
-                        .HasColumnName("plannedSetsWeight");
+                        .HasColumnName("plainedSetsWeight");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -158,7 +161,7 @@ namespace TrainingManager.Migrations
 
                     b.HasIndex("DayExerciseId");
 
-                    b.ToTable("plannedWorkoutSet");
+                    b.ToTable("plainedWorkoutSet");
                 });
 
             modelBuilder.Entity("TrainingManager.Models.TrainingProgram", b =>
@@ -182,10 +185,6 @@ namespace TrainingManager.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("startDate");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -233,9 +232,6 @@ namespace TrainingManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DayExerciseId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("DayExercisesId")
                         .HasColumnType("integer")
                         .HasColumnName("dayExercisesId");
@@ -248,7 +244,7 @@ namespace TrainingManager.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("orderInExercise");
 
-                    b.Property<int?>("RepsCount")
+                    b.Property<int>("RepsCount")
                         .HasColumnType("integer")
                         .HasColumnName("repsCount");
 
@@ -262,7 +258,7 @@ namespace TrainingManager.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DayExerciseId");
+                    b.HasIndex("DayExercisesId");
 
                     b.HasIndex("WorkoutSessionId");
 
@@ -299,10 +295,10 @@ namespace TrainingManager.Migrations
                     b.Navigation("Exercise");
                 });
 
-            modelBuilder.Entity("TrainingManager.Models.PlannedWorkoutSet", b =>
+            modelBuilder.Entity("TrainingManager.Models.PlainedWorkoutSet", b =>
                 {
                     b.HasOne("TrainingManager.Models.DayExercise", "DayExercise")
-                        .WithMany("PlannedWorkoutSets")
+                        .WithMany("PlainedWorkoutSets")
                         .HasForeignKey("DayExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -323,9 +319,9 @@ namespace TrainingManager.Migrations
 
             modelBuilder.Entity("TrainingManager.Models.WorkoutSet", b =>
                 {
-                    b.HasOne("TrainingManager.Models.DayExercise", "DayExercise")
+                    b.HasOne("TrainingManager.Models.DayExercise", "DayExercises")
                         .WithMany("WorkoutSets")
-                        .HasForeignKey("DayExerciseId")
+                        .HasForeignKey("DayExercisesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -335,7 +331,7 @@ namespace TrainingManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DayExercise");
+                    b.Navigation("DayExercises");
 
                     b.Navigation("WorkoutSession");
                 });
@@ -349,7 +345,7 @@ namespace TrainingManager.Migrations
 
             modelBuilder.Entity("TrainingManager.Models.DayExercise", b =>
                 {
-                    b.Navigation("PlannedWorkoutSets");
+                    b.Navigation("PlainedWorkoutSets");
 
                     b.Navigation("WorkoutSets");
                 });
