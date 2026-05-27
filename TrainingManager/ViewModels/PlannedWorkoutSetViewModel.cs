@@ -11,15 +11,15 @@ namespace TrainingManager.ViewModels
 {
     public partial class PlannedWorkoutSetViewModel : ObservableObject
     {
-        private readonly PlannedWorkoutSetService _plannedWorkoutSetService;
+        private readonly WorkoutService _workoutService;
 
         [ObservableProperty] private PlannedWorkoutSet plainedWorkoutSet;
         [ObservableProperty] private int? inputPlannedRepsCount;
         [ObservableProperty] private double? inputPlannedWeight;
 
-        public PlannedWorkoutSetViewModel(PlannedWorkoutSetService plannedWorkoutSetService)
+        public PlannedWorkoutSetViewModel(WorkoutService WorkoutService)
         {
-            _plannedWorkoutSetService = plannedWorkoutSetService;
+            _workoutService = WorkoutService;
         }
 
         public void LoadData(PlannedWorkoutSet plainedWorkoutSet)
@@ -31,7 +31,7 @@ namespace TrainingManager.ViewModels
 
         private async Task UpdatePlainedWorkoutSetAsync()
         {
-            plainedWorkoutSet = await _plannedWorkoutSetService.UpdatePlainedWorkoutSetAsync(
+            plainedWorkoutSet = await _workoutService.UpdatePlainedWorkoutSetAsync(
                 plainedWorkoutSet.Id,
                 InputPlannedRepsCount,
                 InputPlannedWeight

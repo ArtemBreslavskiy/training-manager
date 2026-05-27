@@ -132,6 +132,25 @@ namespace TrainingManager.Services
 
             return ((DateTime.Today - program.StartDate.Date).Days) % program.DaysCount + 1;
         }
+
+        public async Task<Day> UpdateDayAsync(Day updatedDay)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var day = await context.Days
+                .Include(d => d.DayExercises)
+                    .ThenInclude(de => de.Exercise)
+                .FirstOrDefaultAsync(d => d.Id == updatedDay.Id);
+            if (day == null)
+                throw new ArgumentException($"Day with Id={updatedDay.Id} not found");
+
+            day.Name = updatedDay.Name;
+            day.Notes = updatedDay.Notes;
+            day.OrderInProgram = updatedDay.OrderInProgram;
+            day.UpdatedAt = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+            return day;
+        }
     }
 }
 

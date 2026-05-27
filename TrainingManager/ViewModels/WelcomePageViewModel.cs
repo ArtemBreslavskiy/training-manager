@@ -50,11 +50,14 @@ namespace TrainingManager.ViewModels
         [RelayCommand]
         public async Task CreateProgram()
         {
-            if (InputDaysCount != null && InputDaysCount.Value > 0)
+            if (InputName != null && InputDaysCount != null && InputDaysCount.Value > 0)
             {
                 var program = await _trainingProgramService.CreateProgramAsync(InputName, (int)InputDaysCount);
                 Programs.Add(program);
                 _allPrograms.Add(program);
+
+                InputDaysCount = null;
+                InputName = null;
             }
         }
 
@@ -111,3 +114,4 @@ namespace TrainingManager.ViewModels
         }
     }
 }
+

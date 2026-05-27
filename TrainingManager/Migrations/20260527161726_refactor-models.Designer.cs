@@ -12,8 +12,8 @@ using TrainingManager.Data;
 namespace TrainingManager.Migrations
 {
     [DbContext(typeof(TrainingContext))]
-    [Migration("20260524060435_add-default-value-to-workout-set-and-plained-workout-set-in-day-exercise")]
-    partial class adddefaultvaluetoworkoutsetandplainedworkoutsetindayexercise
+    [Migration("20260527161726_refactor-models")]
+    partial class refactormodels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,7 @@ namespace TrainingManager.Migrations
                         .HasColumnName("createdAt");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
@@ -139,7 +140,8 @@ namespace TrainingManager.Migrations
                         .HasColumnName("createdAt");
 
                     b.Property<int>("DayExerciseId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("dayExerciseId");
 
                     b.Property<int>("OrderInExercise")
                         .HasColumnType("integer")
@@ -161,7 +163,7 @@ namespace TrainingManager.Migrations
 
                     b.HasIndex("DayExerciseId");
 
-                    b.ToTable("plannedWorkoutSet");
+                    b.ToTable("plannedWorkoutSets");
                 });
 
             modelBuilder.Entity("TrainingManager.Models.TrainingProgram", b =>
@@ -185,6 +187,10 @@ namespace TrainingManager.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone")
@@ -237,11 +243,8 @@ namespace TrainingManager.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DayExerciseId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DayExercisesId")
                         .HasColumnType("integer")
-                        .HasColumnName("dayExercisesId");
+                        .HasColumnName("dayExerciseId");
 
                     b.Property<bool>("IsComplited")
                         .HasColumnType("boolean")
@@ -316,7 +319,7 @@ namespace TrainingManager.Migrations
             modelBuilder.Entity("TrainingManager.Models.WorkoutSession", b =>
                 {
                     b.HasOne("TrainingManager.Models.Day", "Day")
-                        .WithMany("WorkoutSession")
+                        .WithMany("WorkoutSessions")
                         .HasForeignKey("DayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -347,7 +350,7 @@ namespace TrainingManager.Migrations
                 {
                     b.Navigation("DayExercises");
 
-                    b.Navigation("WorkoutSession");
+                    b.Navigation("WorkoutSessions");
                 });
 
             modelBuilder.Entity("TrainingManager.Models.DayExercise", b =>

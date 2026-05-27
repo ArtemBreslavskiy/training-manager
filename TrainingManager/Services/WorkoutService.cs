@@ -20,6 +20,64 @@ namespace TrainingManager.Services
             _factory = factory;
         }
 
+        public async Task<PlannedWorkoutSet> AddPlainedWorkoutSetAsync(int dayExerciseId, int orderInExercise, int? plannedRepsCount = null, double? plannedWeight = null)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var dayExercise = await context.DayExercises
+                .Include(d => d.PlannedWorkoutSets)
+                .FirstOrDefaultAsync(d => d.Id == dayExerciseId);
+
+            if (dayExercise == null)
+                throw new ArgumentException($"DayExercises with Id={dayExerciseId} not found");
+
+            PlannedWorkoutSet plannedWorkoutSet = new()
+            {
+                OrderInExercise = orderInExercise,
+                PlannedRepsCount = plannedRepsCount,
+                PlannedWeight = plannedWeight,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+
+            dayExercise.PlannedWorkoutSets.Add(plannedWorkoutSet);
+            await context.SaveChangesAsync();
+
+            return await context.PlannedWorkoutSets
+                .Include(pws => pws.DayExercise)
+                    .ThenInclude(de => de.Exercise)
+                .FirstAsync(pws => pws.Id == plannedWorkoutSet.Id);
+        }
+
+        public async Task<PlannedWorkoutSet> UpdatePlainedWorkoutSetAsync(int plannedWorkoutSetId, int? newPlannedRepsCount, double? newPlannedWeight)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var plannedWorkoutSet = await context.PlannedWorkoutSets.FindAsync(plannedWorkoutSetId);
+
+            if (plannedWorkoutSet == null)
+                throw new ArgumentException($"PlannedWorkoutSet with Id={plannedWorkoutSetId} not found");
+
+            plannedWorkoutSet.PlannedRepsCount = newPlannedRepsCount;
+            plannedWorkoutSet.PlannedWeight = newPlannedWeight;
+            plannedWorkoutSet.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+
+            return await context.PlannedWorkoutSets
+                .Include(pws => pws.DayExercise)
+                    .ThenInclude(de => de.Exercise)
+                .FirstAsync(pws => pws.Id == plannedWorkoutSetId);
+        }
+
+        public async Task DeletePlainedWorkoutSetAsync(int plannedWorkoutSetId)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var plannedSet = await context.PlannedWorkoutSets.FindAsync(plannedWorkoutSetId);
+            if (plannedSet != null)
+            {
+                context.PlannedWorkoutSets.Remove(plannedSet);
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task<WorkoutSession?> GetWorkoutSessionByIdAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
@@ -40,15 +98,35 @@ namespace TrainingManager.Services
 
             if (session == null)
             {
-                var dayExists = await context.Days.AnyAsync(d => d.Id == dayId);
-                if (!dayExists)
+                var day = await context.Days
+                    .Include(d => d.DayExercises)
+                        .ThenInclude(de => de.PlannedWorkoutSets)
+                    .FirstOrDefaultAsync(d => d.Id == dayId);
+                if (day == null)
                     throw new ArgumentException($"Day with Id={dayId} not found", nameof(dayId));
 
                 session = new WorkoutSession()
                 {
                     DayId = dayId,
-                    Date = date.Date
+                    Date = date.Date,
+                    WorkoutSets = new List<WorkoutSet>()
                 };
+
+                foreach (var dayExercise in day.DayExercises)
+                {
+                    foreach (var planned in dayExercise.PlannedWorkoutSets)
+                    {
+                        session.WorkoutSets.Add(new WorkoutSet
+                        {
+                            OrderInExercise = planned.OrderInExercise,
+                            RepsCount = null,
+                            Weight = null,
+                            IsComplited = false,
+                            DayExerciseId = dayExercise.Id
+                        });
+                    }
+                }
+
                 context.WorkoutSessions.Add(session);
                 await context.SaveChangesAsync();
             }
@@ -83,7 +161,7 @@ namespace TrainingManager.Services
                 RepsCount = reps,
                 Weight = weight,
                 IsComplited = isCompleted,
-                DayExercisesId = dayExerciseId,
+                DayExerciseId = dayExerciseId,
                 WorkoutSessionId = sessionId
             };
 
@@ -135,7 +213,12 @@ namespace TrainingManager.Services
         public async Task<PlannedWorkoutSet?> GetPlannedWorkoutSets(int workoutSetId)
         {
             await using var context = await _factory.CreateDbContextAsync();
-            var workoutSet = await context.WorkoutSets.FindAsync(workoutSetId);
+            var workoutSet = await context.WorkoutSets
+            .Include(ws => ws.DayExercise)
+                .ThenInclude(de => de.PlannedWorkoutSets)
+            .FirstOrDefaultAsync(ws => ws.Id == workoutSetId);
+
+            if (workoutSet?.DayExercise == null) return null;
             return workoutSet.DayExercise.PlannedWorkoutSets.FirstOrDefault(pws => pws.OrderInExercise == workoutSet.OrderInExercise);
         }
 
@@ -147,14 +230,19 @@ namespace TrainingManager.Services
                 .Include(ws => ws.WorkoutSession)
                 .FirstOrDefaultAsync(ws => ws.Id == workoutSetId);
 
+            if (workoutSet?.DayExercise == null) return null;
+
             var lastSessionDate = await context.WorkoutSets
-                .Where(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId && ws.WorkoutSession.Date.Date != workoutSet.WorkoutSession.Date.Date)
-                .MaxAsync(ws => ws.WorkoutSession.Date);
+                .Where(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId
+                          && ws.WorkoutSession.Date.Date != workoutSet.WorkoutSession.Date.Date)
+                .MaxAsync(ws => (DateTime?)ws.WorkoutSession.Date);
+
+            if (lastSessionDate == null) return null;
 
             return await context.WorkoutSets
-                .FirstOrDefaultAsync(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId 
-                && ws.WorkoutSession.Date.Date == lastSessionDate 
-                && ws.OrderInExercise == workoutSet.OrderInExercise);
+                .FirstOrDefaultAsync(ws => ws.DayExercise.ExerciseId == workoutSet.DayExercise.ExerciseId
+                                       && ws.WorkoutSession.Date.Date == lastSessionDate.Value.Date
+                                       && ws.OrderInExercise == workoutSet.OrderInExercise);
         }
 
         public async Task<List<WorkoutSet>> GetProgressDataAsync(int exerciseId)

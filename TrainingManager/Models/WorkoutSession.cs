@@ -14,11 +14,11 @@ namespace TrainingManager.Models
         public int Id { get; set; }
         [Column("dayId")]
         public int DayId { get; set; }
-        [Column("date")]
-        public DateTime Date { get; set; }
         [Column("notes")]
         public string? Notes { get; set; }
+        [Column("date")]
+        public DateTime Date { get; set; }
         public Day Day { get; set; }
-        public ICollection<WorkoutSet> WorkoutSets { get; set; }
+        public ICollection<WorkoutSet> WorkoutSets { get; set; } = new List<WorkoutSet>();
     }
 }

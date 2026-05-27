@@ -29,7 +29,7 @@ namespace TrainingManager.ViewModels
             ExerciseSessionViewModels.Clear();
 
             var groups = workoutSession.WorkoutSets
-                .GroupBy(ws => ws.DayExercisesId);
+                .GroupBy(ws => ws.DayExerciseId);
 
             foreach (var group in groups)
             {

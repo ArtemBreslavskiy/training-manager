@@ -12,6 +12,10 @@ namespace TrainingManager.Models
     {
         [Column("id")]
         public int Id { get; set; }
+        [Column("WorkoutSessionId")]
+        public int WorkoutSessionId { get; set; }
+        [Column("dayExerciseId")]
+        public int DayExerciseId { get; set; }
         [Column("orderInExercise")]
         public int OrderInExercise { get; set; }
         [Column("repsCount")]
@@ -20,11 +24,7 @@ namespace TrainingManager.Models
         public double? Weight { get; set; }
         [Column("isCompleted")]
         public bool IsComplited { get; set; }
-        [Column("dayExercisesId")]
-        public int DayExercisesId { get; set; }
-        [Column("WorkoutSessionId")]
-        public int WorkoutSessionId { get; set; }
-        public DayExercise DayExercise { get; set; }
         public WorkoutSession WorkoutSession { get; set; }
+        public DayExercise DayExercise { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace TrainingManager.ViewModels
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exersiceService;
         private readonly WorkoutService _workoutService;
-        private readonly PagesUtils _pagesHelper;
+        private readonly PagesUtils _pagesUtils;
 
         [ObservableProperty] private WorkoutSessionViewModel workoutSessionViewModel;
         [ObservableProperty] private string dayName;
@@ -30,12 +30,14 @@ namespace TrainingManager.ViewModels
             IServiceProvider serviceProvider,
             TrainingProgramService trainingProgramService,
             ExerciseService exersiceService,
-            WorkoutService workoutService)
+            WorkoutService workoutService,
+            PagesUtils pagesUtils)
         {
             _serviceProvider = serviceProvider;
             _trainingProgramService = trainingProgramService;
             _exersiceService = exersiceService;
             _workoutService = workoutService;
+            _pagesUtils = pagesUtils;
         }
 
         partial void OnSelectedSessionIdChanged(int value)
@@ -51,5 +53,12 @@ namespace TrainingManager.ViewModels
 
             DayName = workoutSession.Day.Name;
         }
+
+        [RelayCommand]
+        public void GoWelcomePage()
+        {
+            _pagesUtils.GoWelcomePage();
+        }
     }
 }
+

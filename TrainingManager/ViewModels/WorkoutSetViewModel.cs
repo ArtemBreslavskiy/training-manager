@@ -26,7 +26,7 @@ namespace TrainingManager.ViewModels
             _workoutService = workoutService;
         }
 
-        public async void LoadDataAsync(WorkoutSet workoutSet)
+        public async void LoadData(WorkoutSet workoutSet)
         {
             WorkoutSet = workoutSet;
 
@@ -36,11 +36,41 @@ namespace TrainingManager.ViewModels
             var plainedWorkoutSet = await _workoutService.GetPlannedWorkoutSets(workoutSet.Id);
             var lastWorkoutSet = await _workoutService.GetLastWorkoutSetsForExercise(workoutSet.Id);
 
-            PlainedRepsCount = plainedWorkoutSet.PlannedRepsCount;
-            PlainedWeight = plainedWorkoutSet.PlannedWeight;
+            if (plainedWorkoutSet != null)
+            {
+                if (plainedWorkoutSet.PlannedRepsCount != null)
+                    PlainedRepsCount = plainedWorkoutSet.PlannedRepsCount;
+                else
+                    PlainedRepsCount = 0;
 
-            LastRepsCount = lastWorkoutSet.RepsCount;
-            LastWeight = lastWorkoutSet.Weight;
+                if (plainedWorkoutSet.PlannedWeight != null)
+                    PlainedWeight = plainedWorkoutSet.PlannedWeight;
+                else
+                    PlainedWeight = 0;
+            }
+            else
+            {
+                PlainedRepsCount = 0;
+                PlainedWeight = 0;
+            }
+
+            if (lastWorkoutSet != null)
+            {
+                if (lastWorkoutSet.RepsCount != null)
+                    LastRepsCount = lastWorkoutSet.RepsCount;
+                else
+                    LastRepsCount = 0;
+
+                if (lastWorkoutSet.Weight != null)
+                    LastWeight = lastWorkoutSet.Weight;
+                else
+                    LastWeight = 0;
+            }
+            else
+            {
+                LastRepsCount = 0;
+                LastWeight = 0;
+            }
         }
 
         private async Task UpdateWorkoutSetAsync()
@@ -63,3 +93,4 @@ namespace TrainingManager.ViewModels
         }
     }
 }
+

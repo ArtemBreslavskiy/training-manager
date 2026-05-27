@@ -28,18 +28,19 @@ namespace TrainingManager.Utils
             _mainWindowViewModel.CurrentPage = viewModel;
         }
 
-        public void GoChartsPage(int exerciseId)
-        {
-            var viewModel = _serviceProvider.GetRequiredService<ChartsPageViewModel>();
-            viewModel.SelectedExerciseId = exerciseId;
-            _mainWindowViewModel.CurrentPage = viewModel;
-        }
-
         public void GoSessionPage(int sessionId)
         {
             var viewModel = _serviceProvider.GetRequiredService<SessionPageViewModel>();
             viewModel.SelectedSessionId = sessionId;
             _mainWindowViewModel.CurrentPage = viewModel;
         }
+
+        public void GoChartsPage(int exerciseId)
+        {
+            var viewModel = _serviceProvider.GetRequiredService<ChartsPageViewModel>();
+            viewModel.SelectedExerciseId = exerciseId;
+            _mainWindowViewModel.CurrentPage = viewModel;
+        }
     }
 }
+

@@ -8,14 +8,19 @@
              x:CompileBindings="False">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-	    <Grid RowDefinitions="Auto,Auto,*" HorizontalAlignment="Center">
-		    <TextBlock Grid.Row="0" Text="{Binding SelectedProgramName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+	    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="30" Margin="40">
+		    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
+				<TextBlock Grid.Column="1" Text="{Binding SelectedProgramName}" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+                <Button Grid.Column="2" Content="Back" Background="#293133" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
+                    Command="{Binding GoWelcomePageCommand}">
+                </Button>
+            </Grid>
 
-            <ItemsControl Grid.Row="1" ItemsSource="{Binding DayViewModels}">
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding DayViewModels}" HorizontalAlignment="Center">
 
 			    <ItemsControl.ItemContainerTheme>
                     <ControlTheme TargetType="ContentPresenter">
-                        <Setter Property="Margin" Value="15"></Setter>
+                        <Setter Property="Margin" Value="0"></Setter>
                     </ControlTheme>
                 </ItemsControl.ItemContainerTheme>
 
@@ -27,21 +32,21 @@
 
                 <ItemsControl.ItemTemplate>
 		            <DataTemplate>
-			            <Border Padding="10" Margin="10" BorderThickness="2" BorderBrush="Gray" CornerRadius="4" Width="220">
-				            <Grid RowDefinitions="Auto,*,Auto">
-							    <TextBlock Grid.Row="0" Text="{Binding Day.Name}" FontSize="20" HorizontalAlignment="Center" Margin="5 5 5 8"></TextBlock>
+			            <Border Padding="10" Margin="20" BorderThickness="2" BorderBrush="Gray" CornerRadius="4" MinWidth="180">
+				            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+							    <TextBox Grid.Row="0" Text="{Binding InputDayName}" Watermark="Untitled" FontSize="20" HorizontalAlignment="Center" BorderThickness="0"></TextBox>
 
-                                <ItemsControl Grid.Row="1" ItemsSource="{Binding LimitedExercises}">
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding LimitedDayExercises}">
 								
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
-                                            <Setter Property="Margin" Value="5"></Setter>
+                                            <Setter Property="Margin" Value="0"></Setter>
                                         </ControlTheme>
                                     </ItemsControl.ItemContainerTheme>
 
                                     <ItemsControl.ItemsPanel>
 		                                <ItemsPanelTemplate>
-			                                <StackPanel></StackPanel>
+			                                <StackPanel Spacing="5"></StackPanel>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
 
@@ -52,7 +57,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
-                                <Button Grid.Row="2" Content="Edit" Background="#CC5500" HorizontalAlignment="Center" Margin="5 8 5 5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
+                                <Button Grid.Row="2" Content="Edit" Background="#CC5500" HorizontalAlignment="Center" Margin="5" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
                                     Command="{Binding DataContext.SelectDayCommand,
                                     RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                     CommandParameter="{Binding Day}">
@@ -64,52 +69,60 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <StackPanel Grid.Row="2">
-                <TextBlock Text="{Binding SelectedDayName}" Margin="20" FontSize="30"></TextBlock>
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto" RowSpacing="30">
+                <TextBlock Grid.Row="0" Text="{Binding SelectedDayName}" FontSize="30"></TextBlock>
 
-                <ItemsControl ItemsSource="{Binding DayExerciseViewModels}">
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding DayExerciseViewModels}">
 
 	                <ItemsControl.ItemContainerTheme>
                         <ControlTheme TargetType="ContentPresenter">
-                            <Setter Property="Margin" Value="10"></Setter>
+                            <Setter Property="Margin" Value="0"></Setter>
                         </ControlTheme>
                     </ItemsControl.ItemContainerTheme>
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-	                        <StackPanel></StackPanel>
+	                        <StackPanel Spacing="30"></StackPanel>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                           <Grid ColumnDefinitions="Auto,Auto,Auto">
-                                <TextBlock Grid.Column="0" Text="{Binding DayExercise.Exercise.Name}" Margin="10" FontSize="20"></TextBlock>
+                           <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="20">
+                                <TextBlock Grid.Column="0" Text="{Binding DayExercise.Exercise.Name}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
 
                                 <ItemsControl Grid.Column="1" ItemsSource="{Binding PlainedWorkoutSetViewModels}">
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
-                                            <Setter Property="Margin" Value="10"></Setter>
+                                            <Setter Property="Margin" Value="0"></Setter>
                                         </ControlTheme>
                                     </ItemsControl.ItemContainerTheme>
 
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-	                                        <WrapPanel></WrapPanel>
+	                                        <WrapPanel ItemSpacing="20"></WrapPanel>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
 
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-											<StackPanel Orientation="Horizontal">
+											<Border Padding="15" Margin="0" BorderThickness="2" BorderBrush="Gray" CornerRadius="4">
+												<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10">
 
-												<TextBlock Text="Reps" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                                <TextBox Width="50" Text="{Binding InputPlannedRepsCount}"></TextBox>
+												    <TextBlock Grid.Column="0" Text="Reps" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                    <TextBox Grid.Column="1" Watermark="Value" Text="{Binding InputPlannedRepsCount}"  FontSize="16" BorderThickness="0" VerticalAlignment="Center"></TextBox>
 
-                                                <TextBlock Text="Weight" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                                <TextBox  Width="50" Text="{Binding InputPlannedWeight}"></TextBox>
+                                                    <TextBlock Grid.Column="2" Text="Weight" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                    <TextBox Grid.Column="3" Watermark="Value" Text="{Binding InputPlannedWeight}" FontSize="16" BorderThickness="0" VerticalAlignment="Center"></TextBox>
 
-                                            </StackPanel>
+                                                    <Button Grid.Column="4" Content="Delete" Background="#B00000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="80"
+                                                        Command="{Binding DataContext.RemovePlainedSetCommand,
+                                                        RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                        CommandParameter="{Binding PlainedWorkoutSet}">
+                                                    </Button>
+
+                                                </Grid>
+                                            </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -117,7 +130,13 @@
                                 <Button Grid.Column="2" Content="Add" Background="#008000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="60"
                                     Command="{Binding DataContext.AddEmptyPlainedSetCommand,
                                     RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                    CommandParameter="{Binding}">
+                                    CommandParameter="{Binding DayExercise}">
+                                </Button>
+
+                                <Button Grid.Column="3" Content="Delete" Background="#B00000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="80"
+                                    Command="{Binding DataContext.RemoveExerciseFromDayAsyncCommand,
+                                    RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding DayExercise}">
                                 </Button>
 
                             </Grid>
@@ -125,13 +144,14 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <StackPanel Orientation="Horizontal" Margin="10 20 20 50" Spacing="10">
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="20">
 			        <TextBox Watermark="Name" Width="160" Height="32" Text="{Binding InputExerciseName}"></TextBox>
                     <Button Content="Add" Background="#008000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="60"
                         Command="{Binding AddExerciseToDayAsyncCommand}"></Button>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
 
         </Grid>
     </ScrollViewer>
 </UserControl>
+

@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace TrainingManager.Models
 {
-    [Table("plannedWorkoutSet")]
+    [Table("plannedWorkoutSets")]
     public class PlannedWorkoutSet
     {
         [Column("id")]
         public int Id { get; set; }
+        [Column("dayExerciseId")]
+        public int DayExerciseId { get; set; }
         [Column("orderInExercise")]
         public int OrderInExercise { get; set; }
         [Column("plannedRepsCount")]

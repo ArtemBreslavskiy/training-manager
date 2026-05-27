@@ -22,18 +22,20 @@ internal static class DependencyInjection
         services.AddSingleton<TrainingProgramService>();
         services.AddSingleton<ExerciseService>();
         services.AddSingleton<WorkoutService>();
-        services.AddSingleton<PlannedWorkoutSetService>();
         services.AddSingleton<PagesUtils>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<WelcomePageViewModel>();
         services.AddTransient<TrainingProgramPageViewModel>();
         services.AddTransient<SessionPageViewModel>();
         services.AddTransient<ChartsPageViewModel>();
+        services.AddTransient<DayViewModel>();
         services.AddTransient<PlannedWorkoutSetViewModel>();
         services.AddTransient<DayExerciseViewModel>();
         services.AddTransient<WorkoutSetViewModel>();
         services.AddTransient<WorkoutSessionViewModel>();
+        services.AddTransient<ExerciseSessionViewModel>();
 
         return services.BuildServiceProvider();
     }
 }
+

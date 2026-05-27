@@ -24,3 +24,4 @@ namespace TrainingManager.Models
         public ICollection<PlannedWorkoutSet> PlannedWorkoutSets { get; set; } = new List<PlannedWorkoutSet>();
     }
 }
+

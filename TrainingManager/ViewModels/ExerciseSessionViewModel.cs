@@ -14,7 +14,7 @@ namespace TrainingManager.ViewModels
     {
         private readonly IServiceProvider _serviceProvider;
 
-        [ObservableProperty] private ObservableCollection<WorkoutSetViewModel> workoutSetViewModels;
+        [ObservableProperty] private ObservableCollection<WorkoutSetViewModel> workoutSetViewModels = new();
         [ObservableProperty] private string exerciseName;
 
         public ExerciseSessionViewModel(IServiceProvider serviceProvider)
@@ -30,7 +30,7 @@ namespace TrainingManager.ViewModels
             foreach (var workoutSet in workoutSets)
             {
                 var workoutSetViewModel = _serviceProvider.GetRequiredService<WorkoutSetViewModel>();
-                workoutSetViewModel.LoadDataAsync(workoutSet);
+                workoutSetViewModel.LoadData(workoutSet);
                 WorkoutSetViewModels.Add(workoutSetViewModel);
             }
 

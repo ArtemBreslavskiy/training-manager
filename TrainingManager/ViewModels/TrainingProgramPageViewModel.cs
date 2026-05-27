@@ -16,17 +16,12 @@ namespace TrainingManager.ViewModels
 {
     public partial class TrainingProgramPageViewModel : ViewModelBase
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly TrainingProgramService _trainingProgramService;
         private readonly ExerciseService _exerciseService;
         private readonly WorkoutService _workoutService;
-        private readonly PlannedWorkoutSetService _plannedWorkoutSetService;
         private readonly PagesUtils _pagesUtils;
         private TrainingProgram? _program;
         private int maxExercises = 5;
-
-        public IAsyncRelayCommand AddExerciseToDayAsyncCommand { get; }
-        public IAsyncRelayCommand<DayExerciseViewModel> AddEmptyPlainedSetCommand { get; }
 
         [ObservableProperty] private ObservableCollection<DayViewModel> dayViewModels = new();
         [ObservableProperty] private ObservableCollection<DayExerciseViewModel> dayExerciseViewModels = new();
@@ -38,23 +33,25 @@ namespace TrainingManager.ViewModels
         [ObservableProperty] private int inputDaysCount;
         [ObservableProperty] private string inputExerciseName;
 
+        private readonly IServiceProvider _serviceProvider;
+        public IAsyncRelayCommand AddExerciseToDayAsyncCommand { get; }
+        public IAsyncRelayCommand<DayExercise> RemoveExerciseFromDayAsyncCommand { get; }
+
         public TrainingProgramPageViewModel(
             IServiceProvider serviceProvider,
             TrainingProgramService trainingProgramService,
             ExerciseService exersiceService,
             WorkoutService workoutService,
-            PlannedWorkoutSetService plannedWorkoutSetService,
             PagesUtils pagesUtils)
         {
             _serviceProvider = serviceProvider;
             _trainingProgramService = trainingProgramService;
             _exerciseService = exersiceService;
             _workoutService = workoutService;
-            _plannedWorkoutSetService = plannedWorkoutSetService;
             _pagesUtils = pagesUtils;
 
             AddExerciseToDayAsyncCommand = new AsyncRelayCommand(AddExerciseToDayAsync);
-            AddEmptyPlainedSetCommand = new AsyncRelayCommand<DayExerciseViewModel>(AddEmptyPlainedSet);
+            RemoveExerciseFromDayAsyncCommand = new AsyncRelayCommand<DayExercise>(RemoveExerciseFromDayAsync);
         }
 
         partial void OnSelectedProgramIdChanged(int value)
@@ -77,7 +74,16 @@ namespace TrainingManager.ViewModels
             var sortedDays = _program.ProgramDays.OrderBy(d => d.OrderInProgram).ToList();
             foreach (var day in _program.ProgramDays.OrderBy(d => d.OrderInProgram))
             {
-                DayViewModels.Add(new DayViewModel(day, maxExercises));
+                var dayViewModel = _serviceProvider.GetRequiredService<DayViewModel>();
+                dayViewModel.LoadData(day, maxExercises);
+
+                dayViewModel.DayNameChanged += (changedDay, newName) =>
+                {
+                    if (changedDay.Id == SelectedDayId)
+                        SelectedDayName = newName;
+                };
+
+                DayViewModels.Add(dayViewModel);
             }
 
             if (sortedDays.Any())
@@ -136,46 +142,96 @@ namespace TrainingManager.ViewModels
 
         public async Task AddExerciseToDayAsync()
         {
-            Exercise exercise = await FindOrCreateExercise(InputExerciseName);
-            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
-            int orderInDay = day.DayExercises.Any() ? day.DayExercises.Max(de => de.OrderInDay) + 1 : 1;
+            if (InputExerciseName != null)
+            {
+                Exercise exercise = await FindOrCreateExercise(InputExerciseName);
+                var day = _program.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
+                int orderInDay = day.DayExercises.Any() ? day.DayExercises.Max(de => de.OrderInDay) + 1 : 1;
 
-            var newDayExercise = await _exerciseService.AddExerciseToDayAsync(
-                day.Id,
-                exercise.Id,
-                orderInDay,
-                new List<PlannedWorkoutSet>()
-            );
+                var newDayExercise = await _exerciseService.AddExerciseToDayAsync(
+                    day.Id,
+                    exercise.Id,
+                    orderInDay,
+                    new List<PlannedWorkoutSet>()
+                );
 
-            day.DayExercises.Add(newDayExercise);
+                day.DayExercises.Add(newDayExercise);
+                LoadDayExercisesViewModels();
+
+                var dayViewModel = DayViewModels.FirstOrDefault(d => d.Day.Id == day.Id);
+                dayViewModel.UpdateLimitedExercises(maxExercises);
+            }
+        }
+
+        public async Task RemoveExerciseFromDayAsync(DayExercise dayExercise)
+        {
+            await _exerciseService.RemoveExerciseFromDayAsync(dayExercise.Id);
+            if (_program != null)
+            {
+                foreach (var day in _program.ProgramDays)
+                {
+                    var dayExerciseToRemove = day.DayExercises.FirstOrDefault(de => de.Id == dayExercise.Id);
+                    if (dayExerciseToRemove != null)
+                    {
+                        day.DayExercises.Remove(dayExerciseToRemove);
+                        break;
+                    }
+                }
+            }
+
             LoadDayExercisesViewModels();
+
+            var dayViewModel = DayViewModels.FirstOrDefault(d => d.Day.Id == dayExercise.DayId);
+            dayViewModel.UpdateLimitedExercises(maxExercises);
         }
 
         [RelayCommand]
-        public async Task RemoveExerciseFromDayAsync(DayExerciseViewModel dayExerciseViewModel)
+        public async Task AddEmptyPlainedSet(DayExercise dayExercise)
         {
-            await _exerciseService.RemoveExerciseFromDayAsync(dayExerciseViewModel.DayExercise.Id);
-        }
+            int orderInExercise = dayExercise.PlannedWorkoutSets.Count + 1;
+            var plainedWorkoutSet = await _workoutService.AddPlainedWorkoutSetAsync(dayExercise.Id, orderInExercise);
 
-        public async Task AddEmptyPlainedSet(DayExerciseViewModel dayExerciseViewModel)
-        {
-            var day = _program.ProgramDays.FirstOrDefault(d => d.Id == dayExerciseViewModel.DayExercise.DayId);
-            var dayExercise = day?.DayExercises.FirstOrDefault(de => de.Id == dayExerciseViewModel.DayExercise.Id);
-
-            int orderInExercise = dayExerciseViewModel.DayExercise.PlannedWorkoutSets.Count + 1;
-            var plainedWorkoutSet = await _plannedWorkoutSetService.CreatePlainedWorkoutSetAsync(dayExerciseViewModel.DayExercise.Id, orderInExercise);
-            
             dayExercise.PlannedWorkoutSets.Add(plainedWorkoutSet);
 
             LoadDayExercisesViewModels();
         }
 
         [RelayCommand]
+        public async Task RemovePlainedSet(PlannedWorkoutSet plannedWorkoutSet)
+        {
+            await _workoutService.DeletePlainedWorkoutSetAsync(plannedWorkoutSet.Id);
+            if (_program != null)
+            {
+                foreach (var day in _program.ProgramDays)
+                {
+                    foreach (var dayExercise in day.DayExercises)
+                    {
+                        var setToRemove = dayExercise.PlannedWorkoutSets.FirstOrDefault(p => p.Id == plannedWorkoutSet.Id);
+                        if (setToRemove != null)
+                        {
+                            dayExercise.PlannedWorkoutSets.Remove(setToRemove);
+                            goto done;
+                        }
+                    }
+                }
+            }
+        done:
+
+            LoadDayExercisesViewModels();
+        }
+
+        [RelayCommand]
+        public void GoWelcomePage()
+        {
+            _pagesUtils.GoWelcomePage();
+        }
+
+        [RelayCommand]
         public async Task GoTodaySessionPage()
         {
             WorkoutSession session = await _workoutService.GetOrCreateWorkoutSessionAsync(SelectedDayId, DateTime.Today);
-
             _pagesUtils.GoSessionPage(session.Id);
         }
     }
 }
+

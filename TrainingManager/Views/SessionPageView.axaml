@@ -9,7 +9,12 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 	    <Grid RowDefinitions="Auto,*">
-            <TextBlock Grid.Row="0" Text="{Binding DayName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" Margin="20">
+				<TextBlock Grid.Column="1" Text="{Binding DayName}" Margin="20" FontSize="32" HorizontalAlignment="Center"></TextBlock>
+                <Button Grid.Column="2" Content="Back" Background="#293133" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="68"
+                    Command="{Binding GoWelcomePageCommand}">
+                </Button>
+            </Grid>
 
             <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSessionViewModel.ExerciseSessionViewModels}">
 
@@ -27,14 +32,14 @@
 
                 <ItemsControl.ItemTemplate>
 		            <DataTemplate>
-                        <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Grid.Column="0" Text="{Binding ExerciseName}" Margin="10" FontSize="20"></TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Grid.Column="0" Text="{Binding ExerciseName}" Margin="20" FontSize="20"></TextBlock>
 
-                            <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSessionViewModel.ExerciseSessionViewModels}">
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSetViewModels}">
 
 			                    <ItemsControl.ItemContainerTheme>
                                     <ControlTheme TargetType="ContentPresenter">
-                                        <Setter Property="Margin" Value="15"></Setter>
+                                        <Setter Property="Margin" Value="10"></Setter>
                                     </ControlTheme>
                                 </ItemsControl.ItemContainerTheme>
 
@@ -46,23 +51,27 @@
 
                                 <ItemsControl.ItemTemplate>
 									<DataTemplate>
-										<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
+										<Border Padding="10" Margin="0" BorderThickness="2" BorderBrush="Gray" CornerRadius="4">
+											<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
 											
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Reps" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PlainedRepsCount, StringFormat='Planned, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding PlainedWeight, StringFormat='Planned, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Reps:" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PlainedRepsCount, StringFormat='Planned: {0}'}" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding LastRepsCount, StringFormat='Last: {0}'}" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBox Grid.Row="0" Grid.Column="3" Watermark="Actual" Text="{Binding InputRepsCount}" Margin="10 10 10 10" FontSize="16" BorderThickness="0" VerticalAlignment="Center"></TextBox>
 
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Weight" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastRepsCount, StringFormat='Last, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding LastWeight, StringFormat='Last, {0}!'}" Margin="10 10 10 10" FontSize="20"></TextBlock>
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Weight:" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PlainedWeight, StringFormat='Planned: {0}'}" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding LastWeight, StringFormat='Last: {0}'}" Margin="10 10 10 10" FontSize="16" VerticalAlignment="Center"></TextBlock>
+                                                <TextBox Grid.Row="1" Grid.Column="3" Watermark="Actual" Text="{Binding InputWeight}" Margin="10 10 10 10" FontSize="16" BorderThickness="0" VerticalAlignment="Center"></TextBox>
 
-                                        </Grid>
+                                            </Grid>
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
 
                             </ItemsControl>
 
-                        </Grid>
+                        </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
 
@@ -70,3 +79,4 @@
         </Grid>
     </ScrollViewer>
 </UserControl>
+

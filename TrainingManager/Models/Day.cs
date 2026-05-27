@@ -13,7 +13,7 @@ namespace TrainingManager.Models
         [Column("id")]
         public int Id { get; set; }
         [Column("name")]
-        public string? Name { get; set; }
+        public string Name { get; set; } = "Untitled";
         [Column("notes")]
         public string? Notes { get; set; }
         [Column("orderInProgram")]
@@ -23,7 +23,8 @@ namespace TrainingManager.Models
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; }
         public TrainingProgram TrainingProgram { get; set; }
-        public ICollection<DayExercise> DayExercises { get; set; }
-        public ICollection<WorkoutSession> WorkoutSession { get; set; }
+        public ICollection<DayExercise> DayExercises { get; set; } = new List<DayExercise>();
+        public ICollection<WorkoutSession> WorkoutSessions { get; set; } = new List<WorkoutSession>();
     }
 }
+
