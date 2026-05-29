@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,37 +14,46 @@ namespace TrainingManager.ViewModels
 {
     public partial class DayViewModel : ObservableObject
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly TrainingProgramService _trainingProgramService;
 
         [ObservableProperty] private Day day;
-        [ObservableProperty] private ObservableCollection<DayExercise> limitedDayExercises = new();
+        [ObservableProperty] private ObservableCollection<DayExerciseViewModel> limitedDayExerciseViewModels = new();
         [ObservableProperty] private string? inputDayName;
 
         public event Action<Day, string>? DayNameChanged;
 
-        public DayViewModel(TrainingProgramService trainingProgramService)
+        public DayViewModel(IServiceProvider serviceProvider, TrainingProgramService trainingProgramService)
         {
+            _serviceProvider = serviceProvider;
             _trainingProgramService = trainingProgramService;
+        }
+
+        partial void OnInputDayNameChanged(string? value)
+        {
+            RenameDay();
         }
 
         public void LoadData(Day day, int maxExercises)
         {
             Day = day;
             InputDayName = day.Name;
-            UpdateLimitedExercises(maxExercises);
+            UpdateLimitedDayExerciseViewModels(maxExercises);
         }
 
-        public void UpdateLimitedExercises(int maxExercises)
+        public void UpdateLimitedDayExerciseViewModels(int maxExercises)
         {
             var dayExercises = Day.DayExercises
             .OrderBy(de => de.OrderInDay)
             .Take(maxExercises)
             .ToList();
 
-            LimitedDayExercises.Clear();
+            LimitedDayExerciseViewModels.Clear();
             foreach (var dayExercise in dayExercises)
             {
-                LimitedDayExercises.Add(dayExercise);
+                var dayExerciseViewModel = _serviceProvider.GetRequiredService<DayExerciseViewModel>();
+                dayExerciseViewModel.LoadData(dayExercise);
+                LimitedDayExerciseViewModels.Add(dayExerciseViewModel);
             }
         }
 
@@ -53,13 +63,8 @@ namespace TrainingManager.ViewModels
             {
                 Day.Name = InputDayName;
                 await _trainingProgramService.UpdateDayAsync(Day);
+                DayNameChanged?.Invoke(Day, InputDayName);
             }
-        }
-
-        partial void OnInputDayNameChanged(string? value)
-        {
-            RenameDay();
-            DayNameChanged?.Invoke(Day, value);
         }
     }
 }

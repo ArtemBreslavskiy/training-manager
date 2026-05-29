@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,13 +86,13 @@ namespace TrainingManager.Services
             }
         }
 
-        public async Task<TrainingProgram> UpdateProgramAsync(TrainingProgram updatedProgram)
+        public async Task<TrainingProgram>? UpdateProgramAsync(TrainingProgram updatedProgram)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var program = await context.TrainingPrograms
                 .Include(p => p.ProgramDays)
-                .ThenInclude(d => d.DayExercises)
-                .ThenInclude(de => de.Exercise)
+                    .ThenInclude(d => d.DayExercises)
+                        .ThenInclude(de => de.Exercise)
                 .FirstOrDefaultAsync(p => p.Id == updatedProgram.Id);
 
             if (program != null)

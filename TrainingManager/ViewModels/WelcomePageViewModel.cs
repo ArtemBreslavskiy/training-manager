@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Tmds.DBus.Protocol;
 using TrainingManager.Models;
 using TrainingManager.Services;
 using TrainingManager.Utils;
@@ -13,48 +15,60 @@ namespace TrainingManager.ViewModels
 {
     public partial class WelcomePageViewModel : ViewModelBase
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly TrainingProgramService _trainingProgramService;
         private readonly WorkoutService _workoutService;
         private readonly PagesUtils _pagesHelper;
-        private List<TrainingProgram> _allPrograms = new();
+        private List<TrainingProgramViewModel> _allTrainingProgramsViewModels = new();
 
-        [ObservableProperty] private ObservableCollection<TrainingProgram> programs = new();
-        [ObservableProperty] private string searchedName;
-        [ObservableProperty] private string inputName;
-        [ObservableProperty] private int? inputDaysCount;
+        [ObservableProperty] private ObservableCollection<TrainingProgramViewModel> trainingProgramViewModels = new();
+        [ObservableProperty] private string? searchedName;
+        [ObservableProperty] private string? inputName;
+        [ObservableProperty] private string? inputDaysCount;
 
         public WelcomePageViewModel(
             TrainingProgramService trainingProgramService,
             WorkoutService workoutService,
-            PagesUtils pagesHelper)
+            PagesUtils pagesHelper,
+            IServiceProvider serviceProvider)
         {
             _trainingProgramService = trainingProgramService;
             _workoutService = workoutService;
             _pagesHelper = pagesHelper;
 
             LoadDataAsync();
+            _serviceProvider = serviceProvider;
         }
 
         private async Task LoadDataAsync()
         {
-            Programs.Clear();
-            _allPrograms.Clear();
+            TrainingProgramViewModels.Clear();
+            _allTrainingProgramsViewModels.Clear();
 
             foreach (var program in await _trainingProgramService.GetAllProgramsAsync())
             {
-                Programs.Add(program);
-                _allPrograms.Add(program);
+                var programViewModel = _serviceProvider.GetRequiredService<TrainingProgramViewModel>();
+                programViewModel.LoadData(program);
+
+                TrainingProgramViewModels.Add(programViewModel);
+                _allTrainingProgramsViewModels.Add(programViewModel);
             }
         }
 
         [RelayCommand]
         public async Task CreateProgram()
         {
-            if (InputName != null && InputDaysCount != null && InputDaysCount.Value > 0)
+            if (!string.IsNullOrWhiteSpace(InputName) && InputDaysCount != null && 
+                int.TryParse(InputDaysCount, out int daysCount) &&
+                daysCount > 0)
             {
-                var program = await _trainingProgramService.CreateProgramAsync(InputName, (int)InputDaysCount);
-                Programs.Add(program);
-                _allPrograms.Add(program);
+                var program = await _trainingProgramService.CreateProgramAsync(InputName, daysCount);
+
+                var programViewModel = _serviceProvider.GetRequiredService<TrainingProgramViewModel>();
+                programViewModel.LoadData(program);
+
+                TrainingProgramViewModels.Add(programViewModel);
+                _allTrainingProgramsViewModels.Add(programViewModel);
 
                 InputDaysCount = null;
                 InputName = null;
@@ -64,11 +78,11 @@ namespace TrainingManager.ViewModels
         [RelayCommand]
         public async Task DeleteProgram(int programId)
         {
-            var programToRemove = Programs.FirstOrDefault(p => p.Id == programId);
+            var programToRemove = TrainingProgramViewModels.FirstOrDefault(p => p.TrainingProgram.Id == programId);
             if (programToRemove != null)
             {
-                Programs.Remove(programToRemove);
-                _allPrograms.Remove(programToRemove);
+                TrainingProgramViewModels.Remove(programToRemove);
+                _allTrainingProgramsViewModels.Remove(programToRemove);
             }
             await _trainingProgramService.DeleteProgramAsync(programId);
         }
@@ -87,24 +101,24 @@ namespace TrainingManager.ViewModels
             int dayOrder = await _trainingProgramService.GetTodayDayOrder(programId);
             int dayId = program.ProgramDays.ElementAt(dayOrder - 1).Id;
 
-            var session = await _workoutService.GetOrCreateWorkoutSessionAsync(dayId, DateTime.UtcNow);
+            var session = await _workoutService.GetOrCreateWorkoutSessionAsync(dayId, DateTime.UtcNow.Date);
 
             _pagesHelper.GoSessionPage(session.Id);
         }
 
         public void ApplyFilter()
         {
-            var quary = _allPrograms.AsEnumerable();
+            var quary = _allTrainingProgramsViewModels.AsEnumerable();
 
             if (!string.IsNullOrWhiteSpace(SearchedName))
             {
-                quary = quary.Where(p => p.Name.ToLower().Contains(SearchedName.ToLower()));
+                quary = quary.Where(p => p.TrainingProgram.Name.ToLower().Contains(SearchedName.ToLower()));
             }
 
-            Programs.Clear();
+            TrainingProgramViewModels.Clear();
             foreach (var program in quary)
             {
-                Programs.Add(program);
+                TrainingProgramViewModels.Add(program);
             }
         }
 

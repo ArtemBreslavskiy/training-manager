@@ -10,10 +10,17 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 	    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="30" Margin="40">
 		    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
-				<TextBlock Grid.Column="1" Text="{Binding SelectedProgramName}" FontSize="32" HorizontalAlignment="Center"></TextBlock>
-                <Button Grid.Column="2" Content="Back" Background="#293133" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
-                    Command="{Binding GoWelcomePageCommand}">
-                </Button>
+				<TextBox Grid.Column="1" Text="{Binding TrainingProgramViewModel.InputProgramName}" FontSize="32" HorizontalAlignment="Center" BorderThickness="0"></TextBox>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button Content="Go" Background="#3E5F8A" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="50"
+                        Command="{Binding GoTodaySessionPageCommand}">
+                    </Button>
+
+                    <Button Content="Back" Background="#293133"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
+                        Command="{Binding GoWelcomePageCommand}">
+                    </Button>         
+                </StackPanel>
             </Grid>
 
             <ItemsControl Grid.Row="1" ItemsSource="{Binding DayViewModels}" HorizontalAlignment="Center">
@@ -36,7 +43,7 @@
 				            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
 							    <TextBox Grid.Row="0" Text="{Binding InputDayName}" Watermark="Untitled" FontSize="20" HorizontalAlignment="Center" BorderThickness="0"></TextBox>
 
-                                <ItemsControl Grid.Row="1" ItemsSource="{Binding LimitedDayExercises}">
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding LimitedDayExerciseViewModels}">
 								
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
@@ -52,7 +59,7 @@
 
                                     <ItemsControl.ItemTemplate>
 		                                <DataTemplate>
-			                                <TextBlock Grid.Column="0" Text="{Binding Exercise.Name}"></TextBlock>
+			                                <TextBox Grid.Column="0" Text="{Binding InputDayExerciseName}" BorderThickness="0"></TextBox>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -70,7 +77,7 @@
             </ItemsControl>
 
             <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto" RowSpacing="30">
-                <TextBlock Grid.Row="0" Text="{Binding SelectedDayName}" FontSize="30"></TextBlock>
+                <TextBox Grid.Row="0" Text="{Binding InputDayName}" FontSize="30" BorderThickness="0" HorizontalAlignment="Left"></TextBox>
 
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding DayExerciseViewModels}">
 
@@ -89,7 +96,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="20">
-                                <TextBlock Grid.Column="0" Text="{Binding DayExercise.Exercise.Name}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                                <TextBox Grid.Column="0" Text="{Binding InputDayExerciseName}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"></TextBox>
 
                                 <ItemsControl Grid.Column="1" ItemsSource="{Binding PlainedWorkoutSetViewModels}">
                                     <ItemsControl.ItemContainerTheme>

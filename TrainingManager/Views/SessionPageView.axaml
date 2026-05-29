@@ -33,7 +33,7 @@
                 <ItemsControl.ItemTemplate>
 		            <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Grid.Column="0" Text="{Binding ExerciseName}" Margin="20" FontSize="20"></TextBlock>
+                            <TextBlock Grid.Column="0" Text="{Binding ExerciseName}" Margin="20" FontSize="20" VerticalAlignment="Center"></TextBlock>
 
                             <ItemsControl Grid.Row="1" ItemsSource="{Binding WorkoutSetViewModels}">
 

@@ -18,8 +18,8 @@ namespace TrainingManager.ViewModels
         [ObservableProperty] private double? plainedWeight;
         [ObservableProperty] private int? lastRepsCount;
         [ObservableProperty] private double? lastWeight;
-        [ObservableProperty] private int? inputRepsCount;
-        [ObservableProperty] private double? inputWeight;
+        [ObservableProperty] private string? inputRepsCount;
+        [ObservableProperty] private string? inputWeight;
 
         public WorkoutSetViewModel(WorkoutService workoutService)
         {
@@ -30,8 +30,8 @@ namespace TrainingManager.ViewModels
         {
             WorkoutSet = workoutSet;
 
-            InputRepsCount = workoutSet.RepsCount;
-            InputWeight = workoutSet.Weight;
+            InputRepsCount = Convert.ToString(workoutSet.RepsCount);
+            InputWeight = Convert.ToString(workoutSet.Weight);
 
             var plainedWorkoutSet = await _workoutService.GetPlannedWorkoutSets(workoutSet.Id);
             var lastWorkoutSet = await _workoutService.GetLastWorkoutSetsForExercise(workoutSet.Id);
@@ -75,19 +75,28 @@ namespace TrainingManager.ViewModels
 
         private async Task UpdateWorkoutSetAsync()
         {
+            if (!int.TryParse(InputRepsCount, out int repsCount) || repsCount <= 0)
+            {
+                repsCount = 0;
+            }
+            if (!double.TryParse(InputWeight, out double weigth) || weigth <= 0)
+            {
+                weigth = 0;
+            }
+
             WorkoutSet = await _workoutService.UpdateWorkoutSetAsync(
                 WorkoutSet.Id,
-                InputRepsCount,
-                InputWeight
+                repsCount,
+                weigth
             );
         }
 
-        partial void OnInputRepsCountChanged(int? value)
+        partial void OnInputRepsCountChanged(string? value)
         {
             UpdateWorkoutSetAsync();
         }
 
-        partial void OnInputWeightChanged(double? value)
+        partial void OnInputWeightChanged(string? value)
         {
             UpdateWorkoutSetAsync();
         }

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +15,8 @@ namespace TrainingManager.ViewModels
         private readonly WorkoutService _workoutService;
 
         [ObservableProperty] private PlannedWorkoutSet plainedWorkoutSet;
-        [ObservableProperty] private int? inputPlannedRepsCount;
-        [ObservableProperty] private double? inputPlannedWeight;
+        [ObservableProperty] private string? inputPlannedRepsCount;
+        [ObservableProperty] private string? inputPlannedWeight;
 
         public PlannedWorkoutSetViewModel(WorkoutService WorkoutService)
         {
@@ -25,25 +26,34 @@ namespace TrainingManager.ViewModels
         public void LoadData(PlannedWorkoutSet plainedWorkoutSet)
         {
             PlainedWorkoutSet = plainedWorkoutSet;
-            InputPlannedRepsCount = plainedWorkoutSet.PlannedRepsCount;
-            InputPlannedWeight = plainedWorkoutSet.PlannedWeight;
+            InputPlannedRepsCount = Convert.ToString(plainedWorkoutSet.PlannedRepsCount);
+            InputPlannedWeight = Convert.ToString(plainedWorkoutSet.PlannedWeight);
         }
 
         private async Task UpdatePlainedWorkoutSetAsync()
         {
+            if (!int.TryParse(InputPlannedRepsCount, out int plannedRepsCount) || plannedRepsCount <= 0)
+            {
+                plannedRepsCount = 0;
+            }
+            if (!double.TryParse(InputPlannedWeight, out double plannedWeigth) || plannedWeigth <= 0)
+            {
+                plannedWeigth = 0;
+            }
+
             plainedWorkoutSet = await _workoutService.UpdatePlainedWorkoutSetAsync(
                 plainedWorkoutSet.Id,
-                InputPlannedRepsCount,
-                InputPlannedWeight
+                plannedRepsCount,
+                plannedWeigth
             );
         }
 
-        partial void OnInputPlannedRepsCountChanged(int? value)
+        partial void OnInputPlannedRepsCountChanged(string? value)
         {
             UpdatePlainedWorkoutSetAsync();
         }
 
-        partial void OnInputPlannedWeightChanged(double? value)
+        partial void OnInputPlannedWeightChanged(string? value)
         {
             UpdatePlainedWorkoutSetAsync();
         }

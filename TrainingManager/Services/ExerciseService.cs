@@ -71,6 +71,21 @@ namespace TrainingManager.Services
             await context.SaveChangesAsync();
         }
 
+        public async Task<Exercise> UpdateExerciseAsync(Exercise newExercise)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Id == newExercise.Id);
+
+            if (exercise != null)
+            {
+                exercise.Name = newExercise.Name;
+                exercise.UpdatedAt = DateTime.UtcNow;
+
+                await context.SaveChangesAsync();
+            }
+            return exercise;
+        }
+
         public async Task<DayExercise> AddExerciseToDayAsync(
             int dayId,
             int exerciseId,
@@ -92,7 +107,7 @@ namespace TrainingManager.Services
                 DayId = dayId,
                 ExerciseId = exerciseId,
                 OrderInDay = orderInDay,
-                PlannedWorkoutSets = plainedWorkoutSets
+                PlannedWorkoutSets = plainedWorkoutSets,
             };
 
             context.DayExercises.Add(dayExercise);
