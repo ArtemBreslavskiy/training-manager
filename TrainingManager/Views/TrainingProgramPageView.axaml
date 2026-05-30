@@ -9,18 +9,27 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
 	    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="30" Margin="40">
-		    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
-				<TextBox Grid.Column="1" Text="{Binding TrainingProgramViewModel.InputProgramName}" FontSize="32" HorizontalAlignment="Center" BorderThickness="0"></TextBox>
+		    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+				<TextBox Grid.Column="1" Text="{Binding TrainingProgramViewModel.InputProgramName}" Watermark="Untitled" FontSize="32" HorizontalAlignment="Center" BorderThickness="0"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                </TextBox>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-                    <Button Content="Go" Background="#3E5F8A" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="50"
+                <Grid Grid.Column="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+					<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+						<TextBox Text="{Binding InputDaysCount}" Watermark="Days" Width="70" Height="32" HorizontalAlignment="Left"></TextBox>
+                        <Button Grid.Column="1" Content="Update" Background="#008000" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="80"
+                            Command="{Binding UpdateTrainingProgramDaysCountAsyncCommand}">
+                        </Button>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Content="Go" Background="#3E5F8A" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="50"
                         Command="{Binding GoTodaySessionPageCommand}">
                     </Button>
 
-                    <Button Content="Back" Background="#293133"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
+                    <Button Grid.Column="2" Content="Back" Background="#293133" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Width="70"
                         Command="{Binding GoWelcomePageCommand}">
-                    </Button>         
-                </StackPanel>
+                    </Button> 
+                </Grid>
             </Grid>
 
             <ItemsControl Grid.Row="1" ItemsSource="{Binding DayViewModels}" HorizontalAlignment="Center">

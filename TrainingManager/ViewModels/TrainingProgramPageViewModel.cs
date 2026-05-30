@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace TrainingManager.ViewModels
         [ObservableProperty] private string? inputExerciseName;
 
         private readonly IServiceProvider _serviceProvider;
+        public IAsyncRelayCommand UpdateTrainingProgramDaysCountAsyncCommand { get; }
         public IAsyncRelayCommand AddExerciseToDayAsyncCommand { get; }
         public IAsyncRelayCommand<DayExercise> RemoveExerciseFromDayAsyncCommand { get; }
 
@@ -49,6 +51,7 @@ namespace TrainingManager.ViewModels
             _workoutService = workoutService;
             _pagesUtils = pagesUtils;
 
+            UpdateTrainingProgramDaysCountAsyncCommand = new AsyncRelayCommand(UpdateTrainingProgramDaysCountAsync);
             AddExerciseToDayAsyncCommand = new AsyncRelayCommand(AddExerciseToDayAsync);
             RemoveExerciseFromDayAsyncCommand = new AsyncRelayCommand<DayExercise>(RemoveExerciseFromDayAsync);
         }
@@ -77,6 +80,7 @@ namespace TrainingManager.ViewModels
             DayViewModels.Clear();
 
             var program = await _trainingProgramService.GetProgramByIdAsync(SelectedProgramId);
+            InputDaysCount = Convert.ToString(program.DaysCount);
             TrainingProgramViewModel = _serviceProvider.GetRequiredService<TrainingProgramViewModel>();
             TrainingProgramViewModel.LoadData(program);
 
@@ -151,18 +155,6 @@ namespace TrainingManager.ViewModels
                 dayExerciseViewModel.InputDayExerciseName = newName;
         }
 
-        private async Task<Exercise> FindOrCreateExercise(string name)
-        {
-            Exercise exersice = await _exerciseService.GetExerciseByNameAsync(name);
-            if (exersice == null)
-            {
-                exersice = await _exerciseService.CreateExerciseAsync(name);
-            }
-
-            return exersice;
-        }
-
-        [RelayCommand]
         public async Task UpdateTrainingProgramDaysCountAsync()
         {
             if (int.TryParse(InputDaysCount, out int daysCount) && daysCount > 0)
@@ -171,6 +163,8 @@ namespace TrainingManager.ViewModels
                 newProgram.DaysCount = daysCount;
 
                 TrainingProgramViewModel.TrainingProgram = await _trainingProgramService.UpdateProgramAsync(newProgram);
+
+                await LoadProgramAsync();
             }
         }
 
@@ -185,7 +179,8 @@ namespace TrainingManager.ViewModels
         {
             if (InputExerciseName != null)
             {
-                Exercise exercise = await FindOrCreateExercise(InputExerciseName);
+                Exercise exercise = await _exerciseService.FindOrCreateExercise(InputExerciseName);
+                InputExerciseName = null;
                 var day = TrainingProgramViewModel.TrainingProgram.ProgramDays.FirstOrDefault(d => d.Id == SelectedDayId);
                 int orderInDay = day.DayExercises.Any() ? day.DayExercises.Max(de => de.OrderInDay) + 1 : 1;
 

@@ -56,6 +56,18 @@ namespace TrainingManager.Services
             return exercise;
         }
 
+        public async Task<Exercise> FindOrCreateExercise(string name)
+        {
+            await using var context = await _factory.CreateDbContextAsync();
+            var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Name == name);
+
+            if (exercise == null )
+            {
+                exercise = await CreateExerciseAsync(name);
+            }
+            return exercise;
+        }
+
         public async Task DeleteExerciseAsync(int exerciseId)
         {
             await using var context = await _factory.CreateDbContextAsync();

@@ -98,6 +98,7 @@ namespace TrainingManager.Services
             if (program != null)
             {
                 program.Name = updatedProgram.Name;
+                program.DaysCount = updatedProgram.DaysCount;
                 program.UpdatedAt = DateTime.UtcNow;
 
                 var currentDays = program.ProgramDays.OrderBy(d => d.OrderInProgram).ToList();
