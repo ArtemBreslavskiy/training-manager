@@ -10,7 +10,7 @@ namespace TrainingManager;
 internal static class DependencyInjection
 {
     private const string ConnectionString =
-        "Host=localhost;Port=5432;Username=postgres;Password=postgres;Database=training";
+        "Host=localhost;Port=5433;Username=postgres;Password=postgres;Database=training";
 
     public static ServiceProvider ConfigureServices()
     {

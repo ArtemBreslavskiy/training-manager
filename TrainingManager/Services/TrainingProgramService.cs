@@ -86,7 +86,7 @@ namespace TrainingManager.Services
             }
         }
 
-        public async Task<TrainingProgram>? UpdateProgramAsync(TrainingProgram updatedProgram)
+        public async Task<TrainingProgram?> UpdateProgramAsync(TrainingProgram updatedProgram)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var program = await context.TrainingPrograms
@@ -131,6 +131,8 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             var program = await GetProgramByIdAsync(programId);
+            if (program == null)
+                throw new ArgumentException($"Program with Id={programId} not found");
 
             return ((DateTime.Today - program.StartDate.Date).Days) % program.DaysCount + 1;
         }

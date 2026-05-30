@@ -4,7 +4,7 @@
              xmlns:views="clr-namespace:TrainingManager.Views"
              x:Class="TrainingManager.App"
              xmlns:local="using:TrainingManager"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>

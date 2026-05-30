@@ -61,7 +61,7 @@ namespace TrainingManager.Services
             await using var context = await _factory.CreateDbContextAsync();
             var exercise = await context.Exercises.FirstOrDefaultAsync(e => e.Name == name);
 
-            if (exercise == null )
+            if (exercise == null)
             {
                 exercise = await CreateExerciseAsync(name);
             }
