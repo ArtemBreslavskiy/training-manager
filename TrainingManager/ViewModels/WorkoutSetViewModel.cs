@@ -33,7 +33,7 @@ namespace TrainingManager.ViewModels
             InputRepsCount = Convert.ToString(workoutSet.RepsCount);
             InputWeight = Convert.ToString(workoutSet.Weight);
 
-            var plainedWorkoutSet = await _workoutService.GetPlannedWorkoutSets(workoutSet.Id);
+            var plainedWorkoutSet = await _workoutService.GetPlannedWorkoutSet(workoutSet.Id);
             var lastWorkoutSet = await _workoutService.GetLastWorkoutSetsForExercise(workoutSet.Id);
 
             if (plainedWorkoutSet != null)

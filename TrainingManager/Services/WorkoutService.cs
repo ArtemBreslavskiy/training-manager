@@ -26,7 +26,6 @@ namespace TrainingManager.Services
             var dayExercise = await context.DayExercises
                 .Include(d => d.PlannedWorkoutSets)
                 .FirstOrDefaultAsync(d => d.Id == dayExerciseId);
-
             if (dayExercise == null)
                 throw new ArgumentException($"DayExercises with Id={dayExerciseId} not found");
 
@@ -52,7 +51,6 @@ namespace TrainingManager.Services
         {
             await using var context = await _factory.CreateDbContextAsync();
             var plannedWorkoutSet = await context.PlannedWorkoutSets.FindAsync(plannedWorkoutSetId);
-
             if (plannedWorkoutSet == null)
                 throw new ArgumentException($"PlannedWorkoutSet with Id={plannedWorkoutSetId} not found");
 
@@ -198,7 +196,7 @@ namespace TrainingManager.Services
             }
         }
 
-        public async Task<List<WorkoutSet>> GetWorkoutSetAsync(int sessionId)
+        public async Task<List<WorkoutSet>> GetWorkoutSetsAsync(int sessionId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             return await context.WorkoutSets
@@ -210,7 +208,7 @@ namespace TrainingManager.Services
                 .ToListAsync();
         }
 
-        public async Task<PlannedWorkoutSet?> GetPlannedWorkoutSets(int workoutSetId)
+        public async Task<PlannedWorkoutSet?> GetPlannedWorkoutSet(int workoutSetId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var workoutSet = await context.WorkoutSets
@@ -222,7 +220,7 @@ namespace TrainingManager.Services
             return workoutSet.DayExercise.PlannedWorkoutSets.FirstOrDefault(pws => pws.OrderInExercise == workoutSet.OrderInExercise);
         }
 
-        public async Task<WorkoutSet> GetLastWorkoutSetsForExercise(int workoutSetId)
+        public async Task<WorkoutSet?> GetLastWorkoutSetsForExercise(int workoutSetId)
         {
             await using var context = await _factory.CreateDbContextAsync();
             var workoutSet = await context.WorkoutSets
